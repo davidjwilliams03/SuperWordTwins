@@ -46,7 +46,8 @@ public class GamePanel extends JPanel
 
 		soundManager = SoundManager.getInstance();
 
-		image = new BufferedImage (1200, 1200, BufferedImage.TYPE_INT_RGB);
+		// Initialize buffer to match preferred size (1300x700)
+		image = new BufferedImage (1300, 700, BufferedImage.TYPE_INT_RGB);
 
 		level = 1;
 		levelChange = false;

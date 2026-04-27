@@ -1,7 +1,9 @@
+import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Graphics2D;
 import java.awt.Image;
 import java.awt.Rectangle;
+import java.awt.geom.AffineTransform;
 import java.awt.image.BufferedImage;
 import java.util.Iterator;
 import java.util.LinkedList;
@@ -23,6 +25,10 @@ public class TileMap {
     public static final int TILE_SOLID = 1;
     public static final int TILE_SLOPE_UP = 2;
     public static final int TILE_SLOPE_DOWN = 3;
+    public static final int TILE_RISING_LOW = 4;
+    public static final int TILE_RISING_HIGH = 5;
+    public static final int TILE_FALLING_HIGH = 6;
+    public static final int TILE_FALLING_LOW = 7;
 
     private Image[][] tiles;
     private int[][] tileTypes;
@@ -30,8 +36,13 @@ public class TileMap {
     private int mapWidth, mapHeight;
     private int offsetY;
 
+    private LinkedList<PendulumAxe> axes;
+    private LinkedList<SpinningBlade> blades;
+    private LinkedList<GroundSpike> spikes;
+
     private LinkedList sprites;
-    private Image mapBackground;
+    private Image skyBackground;
+    private Image cityBackground;
     private Player player;
     private Heart heart;
 
@@ -66,18 +77,43 @@ public class TileMap {
 
 	bgManager = new BackgroundManager (panel, 12);
 
-        mapBackground = ImageManager.loadImage("images/city_background_sunset.png");
+        skyBackground = ImageManager.loadImage("images/sky11d.png");
+        cityBackground = ImageManager.loadImage("images/city_background_clean.png");
 
         tiles = new Image[mapWidth][mapHeight];
 	player = new Player (panel, this, bgManager);
+
+        // Initialize and populate traps
+        axes = new LinkedList<>();
+        blades = new LinkedList<>();
+        spikes = new LinkedList<>();
+
+        axes.add(new PendulumAxe(11560, 5015, 200, ImageManager.loadImage("images/battle_axe.png")));
+        axes.add(new PendulumAxe(6444, 5675, 200, ImageManager.loadImage("images/battle_axe.png")));
+        
+        blades.add(new SpinningBlade(18200, 6400, ImageManager.loadImage("images/spinning_blade.png")));
+        blades.add(new SpinningBlade(18400, 6300, ImageManager.loadImage("images/spinning_blade.png")));
+        blades.add(new SpinningBlade(11716, 7500, ImageManager.loadImage("images/spinning_blade.png")));
+        blades.add(new SpinningBlade(11716, 6800, ImageManager.loadImage("images/spinning_blade.png")));
+
+
+        spikes.add(new GroundSpike(14720, 4680, ImageManager.loadImage("images/groundspikes.png")));
+        spikes.add(new GroundSpike(14785, 4680, ImageManager.loadImage("images/groundspikes.png")));
+        spikes.add(new GroundSpike(14850, 4680, ImageManager.loadImage("images/groundspikes.png")));
+
+        spikes.add(new GroundSpike(17664, 6425, ImageManager.loadImage("images/groundspikes.png")));
+        spikes.add(new GroundSpike(6600, 7690, ImageManager.loadImage("images/groundspikes.png")));
+        spikes.add(new GroundSpike(6700, 7690, ImageManager.loadImage("images/groundspikes.png")));
+
+
 	heart = new Heart (panel, player);
 		
         sprites = new LinkedList();
 
 	int x, y;
-        // Set starting coordinates as requested
-	x = 380;
-	y = 6590;
+        // Adjusted starting coordinates to suit the 32x32 grid
+	x = 11308;
+	y = 5669;
 
 	//x = 1000;					// position player in 'random' location
 
@@ -169,12 +205,28 @@ public class TileMap {
     public boolean isPixelSolid(int pixelX, int pixelY) {
         int tileX = pixelsToTiles(pixelX);
         int tileY = pixelsToTiles(pixelY);
+        int type = getTileType(tileX, tileY);
+
+        // Mathematical Slope Collision: prevents jitter and "ghosting" by using 
+        // the same floor formulas used for snapping.
+        if (type >= TILE_RISING_LOW && type <= TILE_FALLING_LOW) {
+            int localX = pixelX - tilesToPixels(tileX);
+            int localY = pixelY - tilesToPixels(tileY);
+            float floorY = 0;
+            
+            if (type == TILE_RISING_LOW) floorY = 64 - (localX / 2.0f);
+            else if (type == TILE_RISING_HIGH) floorY = 32 - (localX / 2.0f);
+            else if (type == TILE_FALLING_HIGH) floorY = localX / 2.0f;
+            else if (type == TILE_FALLING_LOW) floorY = 32 + (localX / 2.0f);
+            
+            return localY >= floorY;
+        }
         
         Image tile = getTile(tileX, tileY);
         if (tile instanceof BufferedImage) {
             BufferedImage bi = (BufferedImage) tile;
-            int localX = pixelX % TILE_SIZE;
-            int localY = pixelY % TILE_SIZE;
+            int localX = pixelX - tilesToPixels(tileX);
+            int localY = pixelY - tilesToPixels(tileY);
             
             if (localX >= 0 && localX < bi.getWidth() && localY >= 0 && localY < bi.getHeight()) {
                 int color = bi.getRGB(localX, localY);
@@ -225,13 +277,13 @@ public class TileMap {
     */
     public void draw(Graphics2D g2)
     {
-        // Update dimensions based on the current graphics clip to ensure 
-        // the culling logic matches the actual drawing surface (the 1200x1200px buffer).
+        double zoom = 0.8; // Zoom out factor (0.8 = 80% scale, or 20% zoom out)
+        AffineTransform oldTransform = g2.getTransform();
+
+        // Determine virtual screen size based on zoom level for centering and culling
         Rectangle bounds = g2.getClipBounds();
-        if (bounds != null) {
-            screenWidth = bounds.width;
-            screenHeight = bounds.height;
-        }
+        int virtualWidth = (bounds != null) ? (int)(bounds.width / zoom) : screenWidth;
+        int virtualHeight = (bounds != null) ? (int)(bounds.height / zoom) : screenHeight;
 
         int mapWidthPixels = tilesToPixels(mapWidth);
         int mapHeightPixels = tilesToPixels(mapHeight);
@@ -239,32 +291,35 @@ public class TileMap {
         // get the scrolling position of the map
         // based on player's position
 
-        int offsetX = screenWidth / 2 -
+        int offsetX = virtualWidth / 2 -
             (int)Math.round((double)player.getX()) - (TILE_SIZE / 2);
         offsetX = Math.min(offsetX, 0);
-        offsetX = Math.max(offsetX, screenWidth - mapWidthPixels);
+        offsetX = Math.max(offsetX, virtualWidth - mapWidthPixels);
 
         // Calculate dynamic offsetY to keep player centered vertically
-        int offsetY = screenHeight / 2 - (int)Math.round((double)player.getY()) - (TILE_SIZE / 2);
-        offsetY = Math.min(offsetY, 0);
-        offsetY = Math.max(offsetY, screenHeight - mapHeightPixels);
+        int offsetY = (int)(virtualHeight * 0.75) - (int)Math.round((double)player.getY()) - (TILE_SIZE / 2);
+        // Vertical clamping removed to allow the camera to follow the player at unlimited height and depth.
         this.offsetY = offsetY; // Update the field for collision logic
 
-/*
-        // draw black background, if needed
-        if (background == null ||
-            screenHeight > background.getHeight(null))
-        {
-            g.setColor(Color.black);
-            g.fillRect(0, 0, screenWidth, screenHeight);
-        }
-*/
+        // Apply the zoom scale to the graphics context
+        g2.scale(zoom, zoom);
+
+        // Clear the visible area to prevent "ghosting" or duplicated pixels 
+        // when the camera moves outside the map boundaries.
+        g2.setColor(Color.BLACK); 
+        g2.fillRect(0, 0, virtualWidth, virtualHeight);
+
 	// draw the background first
 
-        if (mapBackground != null) {
-            // Parallax effect: The background scrolls at 50% speed
-            int bgOffsetX = (int) (offsetX * 0.5);
-            g2.drawImage(mapBackground, bgOffsetX, offsetY, getWidthPixels(), getHeightPixels(), null);
+        if (skyBackground != null || cityBackground != null) {
+            if (skyBackground != null) {
+                int skyOffsetX = (int) (offsetX * 0.2); 
+                g2.drawImage(skyBackground, skyOffsetX, offsetY, getWidthPixels(), getHeightPixels(), null);
+            }
+            if (cityBackground != null) {
+                int cityOffsetX = (int) (offsetX * 0.5); 
+                g2.drawImage(cityBackground, cityOffsetX, offsetY, getWidthPixels(), getHeightPixels(), null);
+            }
         } else {
             bgManager.draw (g2);
         }
@@ -277,11 +332,11 @@ public class TileMap {
 */
         // draw the visible tiles
 
-        int firstTileX = pixelsToTiles(-offsetX);
-        int lastTileX = pixelsToTiles(-offsetX + screenWidth) + 1;
+        int firstTileX = Math.max(0, pixelsToTiles(-offsetX) - 1);
+        int lastTileX = Math.min(mapWidth - 1, pixelsToTiles(-offsetX + virtualWidth) + 6);
 
-        int firstTileY = pixelsToTiles(-offsetY);
-        int lastTileY = pixelsToTiles(-offsetY + screenHeight) + 1;
+        int firstTileY = Math.max(0, pixelsToTiles(-offsetY) - 3);
+        int lastTileY = Math.min(mapHeight - 1, pixelsToTiles(-offsetY + virtualHeight) + 6);
 
         for (int y=firstTileY; y <= lastTileY; y++) {
             for (int x=firstTileX; x <= lastTileX; x++) {
@@ -299,13 +354,47 @@ public class TileMap {
 
 
         // draw player
+        
+        int pX = (int)Math.round((double)player.getX()) + offsetX;
+        int pY = (int)Math.round((double)player.getY()) + offsetY;
+        int pW = player.getWidth();
+        int pH = player.getHeight();
 
-        g2.drawImage(player.getImage(),
-            (int)Math.round((double)player.getX()) + offsetX,
-            (int)Math.round((double)player.getY()) + offsetY,
-            player.getWidth(),
-            player.getHeight(),
-            null);
+        if (player.isClimbing()) {
+            // Save current transform
+            AffineTransform old = g2.getTransform();
+            
+            // Rotate 90 degrees toward the wall around the player's center
+            double rotation = (player.getClimbingSide() == -1) ? Math.toRadians(90) : Math.toRadians(-90);
+            g2.rotate(rotation, pX + pW / 2, pY + pH / 2);
+            
+            g2.drawImage(player.getImage(), pX, pY, pW, pH, null);
+            
+            // Restore transform
+            g2.setTransform(old);
+        } else if (player.isCeilingWalking()) {
+            // Invert player 180 degrees for ceiling walking
+            AffineTransform old = g2.getTransform();
+            
+            g2.rotate(Math.toRadians(180), pX + pW / 2, pY + pH / 2);
+            g2.drawImage(player.getImage(), pX, pY, pW, pH, null);
+            
+            // Restore transform
+            g2.setTransform(old);
+        } else {
+            g2.drawImage(player.getImage(), pX, pY, pW, pH, null);
+        }
+
+        // Draw Traps
+        for (PendulumAxe axe : axes) {
+            axe.draw(g2, offsetX, offsetY);
+        }
+        for (SpinningBlade blade : blades) {
+            blade.draw(g2, offsetX, offsetY);
+        }
+        for (GroundSpike spike : spikes) {
+            spike.draw(g2, offsetX, offsetY);
+        }
 
 	// draw Heart sprite
 
@@ -313,6 +402,9 @@ public class TileMap {
             (int)Math.round((double)heart.getX()) + offsetX,
             (int)Math.round((double)heart.getY()) + offsetY, 40, 40,
             null);
+
+        // Restore original transform to avoid affecting UI or subsequent draw calls
+        g2.setTransform(oldTransform);
 
 /*
         // draw sprites
@@ -376,6 +468,25 @@ public class TileMap {
 
     public void update() {
 	player.update();
+
+        // Update hazards and check collision
+        for (PendulumAxe axe : axes) {
+            axe.update();
+            if (axe.collidesWith(player)) {
+                panel.endLevel(); // Or player.reset()
+            }
+        }
+        for (SpinningBlade blade : blades) {
+            blade.update();
+            if (blade.collidesWith(player)) {
+                panel.endLevel();
+            }
+        }
+        for (GroundSpike spike : spikes) {
+            if (spike.collidesWith(player)) {
+                panel.endLevel();
+            }
+        }
 
 	if (heart.collidesWithPlayer()) {
 		panel.endLevel();

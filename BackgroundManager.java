@@ -25,7 +25,7 @@ public class BackgroundManager {
 				     "images/layer_02.png",
 			       	     "images/layer_01.png"};
 
-  	private int moveAmount[] = {1, 2, 3, 4, 4, 4, 5, 10};  
+  private int moveAmount[] = {2, 4, 6, 8, 8, 8, 10, 20};  
 						// pixel amounts to move each background left or right
      						// a move amount of 0 makes a background stationary
 
@@ -68,4 +68,3 @@ public class BackgroundManager {
   	}
 
 }
-

@@ -2,14 +2,14 @@ import java.awt.Dimension;
 import java.awt.Graphics2D;
 import java.awt.Image;
 import java.awt.Point;
+import java.awt.event.KeyEvent;
 import java.awt.geom.Rectangle2D;
 import javax.swing.JPanel;
 
 public class Player {			
 
-   private static final int DX = 18;	// amount of X pixels to move in one keystroke
-   private static final int DY = 32;	// amount of Y pixels to move in one keystroke
-
+   private static final int DX = 36;	// amount of X pixels to move in one keystroke
+   private static final int DY = 64;	// amount of Y pixels to move in one keystroke
    private static final int TILE_SIZE = 64;
 
    private JPanel panel;		// reference to the JFrame on which player is drawn
@@ -34,7 +34,13 @@ public class Player {
    private boolean goingDown;
 
    private boolean inAir;
+   private boolean wasOnGround;
    private int initialVelocity;
+   private boolean isCeilingWalking = false;
+   
+   private boolean isClimbing = false;
+   private int climbingSide = 0; // -1 for Left, 1 for Right
+   private int awayFrames = 0;
    private int startAir;
 
    public Player (JPanel panel, TileMap t, BackgroundManager b) {
@@ -45,6 +51,7 @@ public class Player {
 
       goingUp = goingDown = false;
       inAir = false;
+      wasOnGround = true;
 
       playerLeftImage = ImageManager.loadImage("images/playerLeft.gif");
       playerRightImage = ImageManager.loadImage("images/playerRight.gif");
@@ -54,15 +61,53 @@ public class Player {
       this.height = (int)(playerImage.getHeight(null) * 1.5);
    }
 
+   public boolean isClimbing() { return isClimbing; }
+   public int getClimbingSide() { return climbingSide; }
+   public boolean isCeilingWalking() { return isCeilingWalking; }
+
+   /**
+    * Sensor Box: Checks a 2-pixel wide strip just outside the player's bounds.
+    */
+   private boolean isTouchingWall(int side) {
+      int sensorX = (side == -1) ? x - 5 : x + width + 3;
+      // Check top, middle, and bottom of the player's side
+      return tileMap.isPixelSolid(sensorX, y + 5) || 
+             tileMap.isPixelSolid(sensorX, y + height / 2) || 
+             tileMap.isPixelSolid(sensorX, y + height - 5);
+   }
+
+   /**
+    * Ledge Sensor: Checks if the side sensor is clear at head-height but 
+    * solid at feet-height (detecting a ledge).
+    */
+   private boolean isAtLedge(int side) {
+      int sensorX = (side == -1) ? x - 2 : x + width;
+      // Head is clear, but feet/middle are still against a wall
+      boolean headClear = !tileMap.isPixelSolid(sensorX, y);
+      boolean bodySolid = tileMap.isPixelSolid(sensorX, y + height / 2) || 
+                          tileMap.isPixelSolid(sensorX, y + height - 10);
+      return headClear && bodySolid;
+   }
+
 
    public Point collidesWithTile(int newX, int newY) {
 
-      // Check multiple points along the player's height, but skip the bottom 
-      // section (feet) so the player can enter slope tiles horizontally.
-      int checkHeightLimit = height - 16; 
+      // Check points from head to feet.
+      int checkHeightLimit = height; 
       for (int i = 0; i < checkHeightLimit; i += 10) {
          if (tileMap.isPixelSolid(newX, newY + i)) {
-            return new Point(tileMap.pixelsToTiles(newX), tileMap.pixelsToTiles(newY + i));
+            int tx = tileMap.pixelsToTiles(newX);
+            int ty = tileMap.pixelsToTiles(newY + i);
+            int type = tileMap.getTileType(tx, ty);
+
+            // JUNCTION FIX: Allow a small step-up (15px) for solid tiles to prevent sticking 
+            // where slopes meet flat ground.
+            if (type == TileMap.TILE_SOLID && i > height - 15) continue;
+            
+            // Bypass horizontal collision for slopes near the feet (bottom 40px)
+            if (type >= TileMap.TILE_RISING_LOW && type <= TileMap.TILE_FALLING_LOW && i > height - 40) continue;
+            
+            return new Point(tx, ty);
          }
       }
       // Final check just below the "step" height
@@ -73,14 +118,19 @@ public class Player {
    }
 
    public float getSlopeY(int playerX, int tileX, int tileY, int tileType) {
-      float xLocal = (float)playerX - (tileX * TILE_SIZE);
-      float yOffset = 0;
-      if (tileType == TileMap.TILE_SLOPE_UP) {
-         yOffset = (float)TILE_SIZE - xLocal; 
-      } else if (tileType == TileMap.TILE_SLOPE_DOWN) {
-         yOffset = xLocal;
+      float localX = (float)playerX - (tileX * TILE_SIZE);
+      localX = Math.max(0, Math.min(localX, (float)TILE_SIZE));
+      float floorY = 0;
+      if (tileType == TileMap.TILE_RISING_LOW) {
+         floorY = 64 - (localX / 2.0f);
+      } else if (tileType == TileMap.TILE_RISING_HIGH) {
+         floorY = 32 - (localX / 2.0f);
+      } else if (tileType == TileMap.TILE_FALLING_HIGH) {
+         floorY = localX / 2.0f;
+      } else if (tileType == TileMap.TILE_FALLING_LOW) {
+         floorY = 32 + (localX / 2.0f);
       }
-      return (float)(tileY * TILE_SIZE) + yOffset;
+      return (float)(tileY * TILE_SIZE) + floorY;
    }
 
 
@@ -103,33 +153,28 @@ public class Player {
    }
 
 
-   public Point collidesWithTileUp (int newX, int newY) {
+   public Point collidesWithTileUp(int newX, int newY) {
+      int startYTile = tileMap.pixelsToTiles(y);
+      int endYTile = tileMap.pixelsToTiles(newY);
+      // Head sensor points: inset side points by 10px to avoid wall-snagging
+      int[] checkX = { newX + 10, newX + width / 2, newX + width - 10 };
 
-	  int playerWidth = width;
+      // Sweep check: check every tile row the head passes through during the jump
+      for (int ty = startYTile; ty >= endYTile; ty--) {
+         // Safety: Only detect tiles whose bottom edge is at or above the current head position.
+         // This prevents downward snapping into the floor or the player's own body.
+         if (tileMap.tilesToPixels(ty) + TILE_SIZE > y + 2) {
+            continue;
+         }
 
-	  int xTile = tileMap.pixelsToTiles(newX);
-
-	  int yTileFrom = tileMap.pixelsToTiles(y);
-	  int yTileTo = tileMap.pixelsToTiles(newY);
-	 
-	  for (int yTile=yTileFrom; yTile>=yTileTo; yTile--) {
-		if (tileMap.getTile(xTile, yTile) != null) {
-	        	Point tilePos = new Point (xTile, yTile);
-	  		return tilePos;
-		}
-		else {
-			if (tileMap.getTile(xTile+1, yTile) != null) {
-				int leftSide = (xTile + 1) * TILE_SIZE;
-				if (newX + playerWidth > leftSide) {
-				    Point tilePos = new Point (xTile+1, yTile);
-				    return tilePos;
-			        }
-			}
-		}
-				    
-	  }
-
-	  return null;
+         for (int px : checkX) {
+            int tx = tileMap.pixelsToTiles(px);
+            if (tileMap.getTile(tx, ty) != null) {
+               return new Point(tx, ty);
+            }
+         }
+      }
+      return null;
    }
  
 /*
@@ -166,6 +211,20 @@ public class Player {
    public synchronized void move (int direction) {
 
       if (!panel.isVisible ()) return;
+
+      // Release wall if moving away
+      if ((isClimbing || isCeilingWalking) && direction != 3) {
+         if ((climbingSide == -1 && direction == 2) || (climbingSide == 1 && direction == 1)) {
+            awayFrames++;
+            if (awayFrames > 5) {
+               isClimbing = false;
+               awayFrames = 0;
+            }
+         } else {
+            awayFrames = 0;
+         }
+         // Horizontal movement is still allowed for Ceiling Walking below
+      }
       
       if (direction == 1) {		// move left
           playerImage = playerLeftImage;
@@ -176,10 +235,14 @@ public class Player {
 	  }
 
       Point tilePos = collidesWithTile(newX, y);
-      // Only block horizontal movement if we hit a TILE_SOLID (not a slope)
-      if (tilePos != null && tileMap.getTileType((int)tilePos.getX(), (int)tilePos.getY()) == TileMap.TILE_SOLID) {
+      int tileType = (tilePos != null) ? tileMap.getTileType((int)tilePos.getX(), (int)tilePos.getY()) : TileMap.TILE_EMPTY;
+      if (tilePos != null && tileType == TileMap.TILE_SOLID) {
          x = ((int) tilePos.getX() + 1) * TILE_SIZE;
       } else {
+         // While ceiling walking, ensure we still have a ceiling above us
+         if (isCeilingWalking && collidesWithTileUp(newX, y - 2) == null) {
+            return; // Don't move past the end of the ceiling
+         }
          x = newX;
          bgManager.moveLeft();
       }
@@ -196,41 +259,29 @@ public class Player {
          }
 
          Point tilePos = collidesWithTile(newX + playerWidth, y);
-         // Only block horizontal movement if we hit a TILE_SOLID (not a slope)
-         if (tilePos != null && tileMap.getTileType((int)tilePos.getX(), (int)tilePos.getY()) == TileMap.TILE_SOLID) {
+         int tileType = (tilePos != null) ? tileMap.getTileType((int)tilePos.getX(), (int)tilePos.getY()) : TileMap.TILE_EMPTY;
+         if (tilePos != null && tileType == TileMap.TILE_SOLID) {
             x = ((int) tilePos.getX()) * TILE_SIZE - playerWidth;
          } else {
+            // While ceiling walking, ensure we still have a ceiling above us
+            if (isCeilingWalking && collidesWithTileUp(newX, y - 2) == null) {
+               return; // Don't move past the end of the ceiling
+            }
             x = newX;
             bgManager.moveRight();
          }
       }
-      else if (direction == 3 && !jumping) {	
-          jump();
-          return;
-      }
-
-      // SLOPE HANDLING: Height Map Resolution
-      if (!jumping && !inAir) {
-          int centerX = x + width / 2;
-          int footY = y + height;
-          int tileX = tileMap.pixelsToTiles(centerX);
-          int tileY = tileMap.pixelsToTiles(footY - 1);
-          int type = tileMap.getTileType(tileX, tileY);
-
-          if (type == TileMap.TILE_SLOPE_UP || type == TileMap.TILE_SLOPE_DOWN) {
-              float surfaceY = getSlopeY(centerX, tileX, tileY, type);
-              y = (int) (surfaceY - height);
+      else if (direction == 3) { 
+          if (!jumping && !inAir) {
+              jump();
           }
-      }
-
-      if (isInAir()) {
-          fall();
+          return;
       }
    }
 
 
    public boolean isInAir() {
-      if (!jumping && !inAir) {   
+      if (!jumping && !inAir && !isClimbing && !isCeilingWalking) {   
           // Player is NOT in air if any point under their feet (left, center, right) is solid
           boolean onGround = tileMap.isPixelSolid(x, y + height + 1) || 
                             tileMap.isPixelSolid(x + width / 2, y + height + 1) || 
@@ -262,24 +313,155 @@ public class Player {
 
       jumping = true;
       timeElapsed = 0;
+      startY = y;
+
+      if (isClimbing) {
+         // Jump off wall (apply kickback)
+         isClimbing = false;
+         x += (climbingSide == -1) ? 20 : -20; 
+         initialVelocity = 180;
+      } else {
+         initialVelocity = 130; // Adjusted for 64x64 tiles at 20fps physics
+      }
 
       goingUp = true;
       goingDown = false;
-
-      startY = y;
-      initialVelocity = 100;
    }
 
 
    public void update () {
+
+      // Entrance check: Trigger if holding Up while against a wall (checked every frame)
+      if (!isClimbing && GameWindow.isKeyPressed(KeyEvent.VK_UP)) {
+         if (isTouchingWall(-1)) {
+            isClimbing = true;
+            climbingSide = -1;
+            playerImage = playerLeftImage;
+            jumping = inAir = goingUp = goingDown = false;
+         } else if (isTouchingWall(1)) {
+            isClimbing = true;
+            climbingSide = 1;
+            playerImage = playerRightImage;
+            jumping = inAir = goingUp = goingDown = false;
+         }
+      }
+
+      if (isClimbing) {
+         int climbSpeed = 8;
+         if (GameWindow.isKeyPressed(KeyEvent.VK_UP)) {
+            int nextY = y - climbSpeed;
+            // Check if head hits a solid part of a tile (including slopes)
+            if (!tileMap.isPixelSolid(x + width / 2, nextY)) {
+               y = nextY;
+            }
+            
+            // Mantle / Ledge Move
+            if (isAtLedge(climbingSide)) {
+               y -= 32; // Lift up
+               x += (climbingSide == -1) ? -20 : 20; // Push onto surface
+               isClimbing = false;
+            }
+         }
+         if (GameWindow.isKeyPressed(KeyEvent.VK_DOWN)) {
+            int nextY = y + climbSpeed;
+            // Check if feet hit a solid part of a tile
+            if (!tileMap.isPixelSolid(x + width / 2, nextY + height)) {
+               y = nextY;
+            }
+            // Fall off if we hit the floor
+            if (tileMap.isPixelSolid(x + width/2, y + height + 1)) {
+               isClimbing = false;
+            }
+         }
+
+         // Safety check: if wall disappears, stop climbing
+         if (!isTouchingWall(climbingSide)) {
+            isClimbing = false;
+         }
+         return; // Bypass normal physics
+      }
+
+      // RESET LOGIC (Death Plane)
+      if (y > tileMap.getHeightPixels() + 200) {
+         x = 100; y = 100; // Reset to start
+         fall();
+      }
+
+      // CEILING STICKING LOGIC (Only trigger if jumping or in air)
+      if (GameWindow.isKeyPressed(KeyEvent.VK_SPACE) && (jumping || inAir)) {
+         Point headTile = collidesWithTileUp(x, y - 2);
+         if (headTile != null) {
+            isCeilingWalking = true;
+            jumping = inAir = goingUp = goingDown = false;
+            y = (int)(headTile.getY() + 1) * TILE_SIZE; // Snap to ceiling
+         }
+      } else {
+         isCeilingWalking = false;
+      }
+
+      if (isCeilingWalking) {
+         if (collidesWithTileUp(x, y - 2) == null) isCeilingWalking = false;
+         else return; // Stay on ceiling
+      }
+
       int distance = 0;
       int newY = 0;
+
+      // SLOPE HANDLING & SNAPPING (Moved from move() to update() to ensure constant physics)
+      int leftX = x + 4;
+      int centerX = x + width / 2;
+      int rightX = x + width - 4;
+      int footY = y + height;
+
+      // Increased searchRange to 24 to catch steep drop-offs when DX=36
+      // Increased upwardSearch to -32 to catch deep penetrations when moving uphill at DX=36
+      int searchRange = (wasOnGround && !jumping) ? 24 : 0; 
+      int upwardSearch = (goingUp || jumping) ? 0 : -32; 
+
+      boolean onSlope = false;
+      int[] samplePoints = { leftX, centerX, rightX };
+
+      // Prevent snapping to the floor if the player is actively jumping up
+      if (!goingUp && !jumping) {
+          for (int px : samplePoints) {
+              for (int i = upwardSearch; i <= searchRange; i++) {
+                  int tx = tileMap.pixelsToTiles(px);
+                  int ty = tileMap.pixelsToTiles(footY + i - 1);
+                  int type = tileMap.getTileType(tx, ty);
+
+                  if (type >= TileMap.TILE_RISING_LOW && type <= TileMap.TILE_FALLING_LOW) {
+                      float surfaceY = getSlopeY(px, tx, ty, type);
+                      // Removed the Math.abs < 10 check because DX=36 causes penetrations
+                      // deeper than 10 pixels, which was preventing the snap from triggering uphill.
+                      if (footY + i >= surfaceY) {
+                          y = (int) (surfaceY - height);
+                          jumping = false;
+                          inAir = false;
+                          goingUp = goingDown = false;
+                          timeElapsed = 0; 
+                          onSlope = true;
+                          break;
+                      }
+                  }
+              }
+              if (onSlope) break;
+          }
+      }
+
+      boolean isOnGround = tileMap.isPixelSolid(x, y + height + 1) || 
+                           tileMap.isPixelSolid(x + width / 2, y + height + 1) || 
+                           tileMap.isPixelSolid(x + width - 1, y + height + 1);
+
+      if (!onSlope && !isOnGround && !jumping && !inAir && !isClimbing) {
+          fall();
+      }
+      wasOnGround = isOnGround || onSlope;
 
       timeElapsed++;
 
       if (jumping || inAir) {
 	   distance = (int) (initialVelocity * timeElapsed - 
-                             4.9 * timeElapsed * timeElapsed);
+                             9.8 * timeElapsed * timeElapsed);
 	   newY = startY - distance;
 
 	   if (newY > y && goingUp) {

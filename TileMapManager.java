@@ -99,11 +99,15 @@ public class TileMapManager {
                 newMap.setTile(x, y, tiles.get(tileIndex));
                 
                 // ASSIGN TILE TYPES BASED ON IMAGE INDEX
-                // Adjust these numbers based on your actual Tile IDs (0-indexed)
-                if (tileIndex == 10) { // Example ID for Slope Up
-                    newMap.setTileType(x, y, TileMap.TILE_SLOPE_UP);
-                } else if (tileIndex == 11) { // Example ID for Slope Down
-                    newMap.setTileType(x, y, TileMap.TILE_SLOPE_DOWN);
+                // Shifted to 0-indexed to match loaded Tile_01 (index 0) to Tile_64 (index 63)
+                if (tileIndex == 42) { // Tile_43
+                    newMap.setTileType(x, y, TileMap.TILE_RISING_LOW);
+                } else if (tileIndex == 32) { // Tile_33
+                    newMap.setTileType(x, y, TileMap.TILE_RISING_HIGH);
+                } else if (tileIndex == 33) { // Tile_34
+                    newMap.setTileType(x, y, TileMap.TILE_FALLING_HIGH);
+                } else if (tileIndex == 43) { // Tile_44
+                    newMap.setTileType(x, y, TileMap.TILE_FALLING_LOW);
                 } else {
                     newMap.setTileType(x, y, TileMap.TILE_SOLID);
                 }

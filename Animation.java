@@ -1,5 +1,8 @@
 import java.awt.Image;
 import java.util.ArrayList;
+import java.awt.Graphics;
+import java.awt.Graphics2D;
+import java.awt.image.BufferedImage;
 
 
 /**
@@ -107,7 +110,6 @@ public class Animation {
             return getFrame(currFrameIndex).image;
         }
     }
-
 
     public int getNumFrames() {					// find out how many frames in animation
 	return frames.size();

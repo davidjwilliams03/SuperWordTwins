@@ -55,9 +55,9 @@ public class MysteryBox{
             random = new Random();
             int n = random.nextInt(2);
             if(n==0)
-                slowPlayer(5000);
+                slowPlayer(10000);
             else
-                speedPlayer(5000);
+                speedPlayer(10000);
             
         }
 

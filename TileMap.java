@@ -40,6 +40,7 @@ public class TileMap {
     private LinkedList<SpinningBlade> blades;
     private LinkedList<GroundSpike> spikes;
     private LinkedList<MysteryBox> mboxes;
+    private LinkedList<Coin> coins;
 
     private LinkedList sprites;
     private Image skyBackground;
@@ -89,6 +90,7 @@ public class TileMap {
         blades = new LinkedList<>();
         spikes = new LinkedList<>();
         mboxes = new LinkedList<>();
+        coins = new LinkedList<>();
 
         axes.add(new PendulumAxe(11560, 5015, 200, ImageManager.loadImage("images/battle_axe.png")));
         axes.add(new PendulumAxe(6444, 5675, 200, ImageManager.loadImage("images/battle_axe.png")));
@@ -109,6 +111,12 @@ public class TileMap {
 
         mboxes.add(new MysteryBox(14720, 4300, player));
         //mboxes.add(new MysteryBox(14900, 4300, player));
+
+        int startx = 14500;
+        int starty = 4300;
+        for(int i = 0; i < 1; i++){
+            coins.add(new Coin(startx + (i*10), starty, player));
+        }
 
 
 	heart = new Heart (panel, player);
@@ -403,6 +411,9 @@ public class TileMap {
         for(MysteryBox box : mboxes){
             box.draw(g2, offsetX, offsetY);
         }
+        for(Coin coin : coins){
+            coin.draw(g2, offsetX, offsetY);
+        }
 
 	// draw Heart sprite
 
@@ -497,6 +508,9 @@ public class TileMap {
         }
         for(MysteryBox box : mboxes){
             box.update();
+        }
+        for(Coin coin : coins){
+            coin.update();
         }
 
 	if (heart.collidesWithPlayer()) {

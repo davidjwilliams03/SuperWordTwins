@@ -1,5 +1,6 @@
 import java.awt.Graphics2D;
 import java.awt.image.BufferedImage;
+import java.util.Random;
 
 public class MysteryBox{
     private BufferedImage sheet;
@@ -10,10 +11,11 @@ public class MysteryBox{
     private int spriteW, spriteH, width, height;
     private int x, y;
 
-    private boolean disappeared, boosted;
+    private boolean disappeared, boosted, slowed;
     private int alpha, duration, timer;
 
     private Player player;
+    private Random random;
 
     public MysteryBox(int x, int y, Player player){
         this.x = x;
@@ -38,6 +40,7 @@ public class MysteryBox{
         animation.start();
         disappeared = false;
         boosted = false;
+        slowed = false;
     }
 
     public void update(){
@@ -49,7 +52,12 @@ public class MysteryBox{
         if(collision&& !disappeared){
             disappearBox(this);
 
-            speedPlayer(5000);
+            random = new Random();
+            int n = random.nextInt(2);
+            if(n==0)
+                slowPlayer(5000);
+            else
+                speedPlayer(5000);
             
         }
 
@@ -57,8 +65,17 @@ public class MysteryBox{
             timer = timer + 50;
 
             if(timer>= duration){
-                player.setdx(player.getdx()-20);
+                player.setdx(player.getdx()-25);
                 boosted = false;
+            }
+        }
+
+        if(slowed){
+            timer = timer + 50;
+
+            if(timer>= duration){
+                player.setdx(player.getdx()+25);
+                slowed = false;
             }
         }
     }
@@ -111,10 +128,17 @@ public class MysteryBox{
 
     public void speedPlayer(int time){
         player.setdx(player.getdx()+25);
-        player.setdy(player.getdy()+20);
         duration = time;
         timer = 0;
-        boosted = true;    }
+        boosted = true;    
+    }
+
+    public void slowPlayer(int time){
+        player.setdx(player.getdx()-25);
+        duration = time;
+        timer = 0;
+        slowed = true;
+    }
 
     public boolean collidesWithPlayer() {
         return player.getBoundingRectangle().intersects(

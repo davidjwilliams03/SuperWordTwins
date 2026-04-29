@@ -39,6 +39,7 @@ public class TileMap {
     private LinkedList<PendulumAxe> axes;
     private LinkedList<SpinningBlade> blades;
     private LinkedList<GroundSpike> spikes;
+    private LinkedList<MysteryBox> mboxes;
 
     private LinkedList sprites;
     private Image skyBackground;
@@ -87,6 +88,7 @@ public class TileMap {
         axes = new LinkedList<>();
         blades = new LinkedList<>();
         spikes = new LinkedList<>();
+        mboxes = new LinkedList<>();
 
         axes.add(new PendulumAxe(11560, 5015, 200, ImageManager.loadImage("images/battle_axe.png")));
         axes.add(new PendulumAxe(6444, 5675, 200, ImageManager.loadImage("images/battle_axe.png")));
@@ -104,6 +106,9 @@ public class TileMap {
         spikes.add(new GroundSpike(17664, 6425, ImageManager.loadImage("images/groundspikes.png")));
         spikes.add(new GroundSpike(6600, 7690, ImageManager.loadImage("images/groundspikes.png")));
         spikes.add(new GroundSpike(6700, 7690, ImageManager.loadImage("images/groundspikes.png")));
+
+        mboxes.add(new MysteryBox(14720, 4300, player));
+        mboxes.add(new MysteryBox(14900, 4300, player));
 
 
 	heart = new Heart (panel, player);
@@ -395,6 +400,9 @@ public class TileMap {
         for (GroundSpike spike : spikes) {
             spike.draw(g2, offsetX, offsetY);
         }
+        for(MysteryBox box : mboxes){
+            box.draw(g2, offsetX, offsetY);
+        }
 
 	// draw Heart sprite
 
@@ -486,6 +494,9 @@ public class TileMap {
             if (spike.collidesWith(player)) {
                 panel.endLevel();
             }
+        }
+        for(MysteryBox box : mboxes){
+            box.update();
         }
 
 	if (heart.collidesWithPlayer()) {

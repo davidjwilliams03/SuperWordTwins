@@ -8,8 +8,8 @@ import javax.swing.JPanel;
 
 public class Player {			
 
-   private static final int DX = 36;	// amount of X pixels to move in one keystroke
-   private static final int DY = 64;	// amount of Y pixels to move in one keystroke
+   private int DX = 36;	// amount of X pixels to move in one keystroke
+   private int DY = 64;	// amount of Y pixels to move in one keystroke
    private static final int TILE_SIZE = 64;
 
    private JPanel panel;		// reference to the JFrame on which player is drawn
@@ -557,6 +557,23 @@ public class Player {
    public void setY(int y) {
       this.y = y;
    }
+
+   public int getdx() {
+      return DX;
+   }
+
+   public int getdy() {
+      return DY;
+   }
+
+   public void setdx(int dx){
+      this.DX = dx;
+   }
+
+   public void setdy(int dy){
+      this.DY = dy;
+   }
+
 
 
    public int getWidth() {

@@ -108,7 +108,7 @@ public class TileMap {
         spikes.add(new GroundSpike(6700, 7690, ImageManager.loadImage("images/groundspikes.png")));
 
         mboxes.add(new MysteryBox(14720, 4300, player));
-        mboxes.add(new MysteryBox(14900, 4300, player));
+        //mboxes.add(new MysteryBox(14900, 4300, player));
 
 
 	heart = new Heart (panel, player);

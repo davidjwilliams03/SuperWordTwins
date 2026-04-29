@@ -10,8 +10,8 @@ public class MysteryBox{
     private int spriteW, spriteH, width, height;
     private int x, y;
 
-    private boolean disappeared;
-    private int alpha;
+    private boolean disappeared, boosted;
+    private int alpha, duration, timer;
 
     private Player player;
 
@@ -36,6 +36,8 @@ public class MysteryBox{
         }
 
         animation.start();
+        disappeared = false;
+        boosted = false;
     }
 
     public void update(){
@@ -46,6 +48,18 @@ public class MysteryBox{
         boolean collision = collidesWithPlayer();
         if(collision&& !disappeared){
             disappearBox(this);
+
+            speedPlayer(5000);
+            
+        }
+
+        if(boosted){
+            timer = timer + 50;
+
+            if(timer>= duration){
+                player.setdx(player.getdx()-20);
+                boosted = false;
+            }
         }
     }
 
@@ -94,6 +108,13 @@ public class MysteryBox{
     public boolean isDisappeared(){
         return disappeared;
     }
+
+    public void speedPlayer(int time){
+        player.setdx(player.getdx()+25);
+        player.setdy(player.getdy()+20);
+        duration = time;
+        timer = 0;
+        boosted = true;    }
 
     public boolean collidesWithPlayer() {
         return player.getBoundingRectangle().intersects(

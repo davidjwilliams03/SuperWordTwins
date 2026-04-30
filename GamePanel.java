@@ -5,6 +5,10 @@ import java.awt.Image;
 import java.awt.event.KeyEvent;
 import java.awt.geom.Rectangle2D;
 import java.awt.image.BufferedImage;
+import java.io.BufferedReader;
+import java.io.FileReader;
+import java.util.ArrayList;
+import java.util.List;
 import javax.swing.JPanel;
 
 /**
@@ -36,6 +40,11 @@ public class GamePanel extends JPanel
 	private boolean levelChange;
 	private int level;
 	private boolean gameOver;
+	private Image endImage;
+
+	private ArrayList<String> riddle;
+    private ArrayList<String> ans;
+
 
 	public GamePanel () {
 
@@ -51,8 +60,33 @@ public class GamePanel extends JPanel
 
 		level = 1;
 		levelChange = false;
+
 	}
 
+    public void loadRiddles() {
+        List<String> riddle = new ArrayList<>();
+        List<String> ans = new ArrayList<>();
+        BufferedReader br = null;
+        String line = "";
+
+        try {
+            br = new BufferedReader(new FileReader("riddles.csv"));
+            while((line = br.readLine()) != null) {
+                String[] row = line.split(",");
+                riddle.add(row[0].trim().toUpperCase());
+                ans.add(row[1].trim().toUpperCase());
+                
+        }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        
+         /*for(int i = 0; i < riddle.size(); i++){
+                System.out.println("Riddle: " + riddle.get(i));
+                System.out.println("Answer: " + ans.get(i));
+
+            }*/
+    }
 
 	public void createGameEntities() {
 		animation = new BirdAnimation();

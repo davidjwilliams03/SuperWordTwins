@@ -183,6 +183,7 @@ public class GameWindow extends JFrame
 		statusBarTF.setText(command + " button clicked.");
 
 		if (command.equals(startB.getText())) {
+			gamePanel.loadRiddles();
 			collectedTF.setText("0");
 			gamePanel.startGame();
 		}

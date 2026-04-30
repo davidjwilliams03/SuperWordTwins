@@ -45,6 +45,10 @@ public class TileMap {
     private LinkedList<Coin> coins;
     private int coinsCollected;
 
+    private LinkedList<LetterTile> lts;
+    private LinkedList<BufferedImage> tileimgs;
+    private char[] letters = {'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z'};
+
     private LinkedList sprites;
     private Image skyBackground;
     private Image cityBackground;
@@ -95,6 +99,8 @@ public class TileMap {
         mboxes = new LinkedList<>();
         enemies = new LinkedList<>();
         coins = new LinkedList<>();
+        lts = new LinkedList<>();
+        tileimgs = new LinkedList<>();
 
         axes.add(new PendulumAxe(11560, 5015, 200, ImageManager.loadImage("images/battle_axe.png")));
         axes.add(new PendulumAxe(6444, 5675, 200, ImageManager.loadImage("images/battle_axe.png")));
@@ -126,6 +132,42 @@ public class TileMap {
             coins.add(new Coin(startx + (i*10), starty, player));
         }
         coinsCollected = 0;
+
+        //load in tile images
+        tileimgs.add(ImageManager.loadBufferedImage("images/A.jpg"));
+        tileimgs.add(ImageManager.loadBufferedImage("images/B.jpg"));
+        tileimgs.add(ImageManager.loadBufferedImage("images/C.jpg"));
+        tileimgs.add(ImageManager.loadBufferedImage("images/D.jpg"));
+        tileimgs.add(ImageManager.loadBufferedImage("images/E.jpg"));
+        tileimgs.add(ImageManager.loadBufferedImage("images/F.jpg"));
+        tileimgs.add(ImageManager.loadBufferedImage("images/G.jpg"));
+        tileimgs.add(ImageManager.loadBufferedImage("images/H.jpg"));
+        tileimgs.add(ImageManager.loadBufferedImage("images/I.jpg"));
+        tileimgs.add(ImageManager.loadBufferedImage("images/J.jpg"));
+        tileimgs.add(ImageManager.loadBufferedImage("images/K.jpg"));
+        tileimgs.add(ImageManager.loadBufferedImage("images/L.jpg"));
+        tileimgs.add(ImageManager.loadBufferedImage("images/M.jpg"));
+        tileimgs.add(ImageManager.loadBufferedImage("images/N.jpg"));
+        tileimgs.add(ImageManager.loadBufferedImage("images/O.jpg"));
+        tileimgs.add(ImageManager.loadBufferedImage("images/P.jpg"));
+        tileimgs.add(ImageManager.loadBufferedImage("images/Q.jpg"));
+        tileimgs.add(ImageManager.loadBufferedImage("images/R.jpg"));
+        tileimgs.add(ImageManager.loadBufferedImage("images/S.jpg"));
+        tileimgs.add(ImageManager.loadBufferedImage("images/T.jpg"));
+        tileimgs.add(ImageManager.loadBufferedImage("images/U.jpg"));
+        tileimgs.add(ImageManager.loadBufferedImage("images/V.jpg"));
+        tileimgs.add(ImageManager.loadBufferedImage("images/W.jpg"));
+        tileimgs.add(ImageManager.loadBufferedImage("images/X.jpg"));
+        tileimgs.add(ImageManager.loadBufferedImage("images/Y.jpg"));
+        tileimgs.add(ImageManager.loadBufferedImage("images/Z.png"));
+        //create letter tiles using corresponding indexes. 
+
+        for(int i = 0; i < 26; i++){
+            if (tileimgs.get(i) == null) System.out.println("Image " + letters[i] + " failed to load");
+            lts.add(new LetterTile(tileimgs.get(i), letters[i], player));
+        }
+        lts.get(0).setx(19200);
+        lts.get(0). sety(2200);
 
 
 	heart = new Heart (panel, player);
@@ -428,6 +470,10 @@ public class TileMap {
             if(!coin.isDisappeared())
                 coin.draw(g2, offsetX, offsetY);
         }
+        for(LetterTile lt : lts){
+            if(!lt.isDisappeared())
+                lt.draw(g2, offsetX, offsetY);
+        }
 
 	// draw Heart sprite
 
@@ -530,6 +576,10 @@ public class TileMap {
         for(MysteryBox box : mboxes){
             box.update();
         }
+        for(LetterTile lt : lts){
+            lt.update();
+        }
+
 
         Iterator<Coin> coinIt = coins.iterator();
         while (coinIt.hasNext()) {

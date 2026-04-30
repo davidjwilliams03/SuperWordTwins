@@ -266,15 +266,21 @@ public class GamePanel extends JPanel
 			imageContext.fillRect(0, 0, w, h);
 
 			// Draw Game Over Message
-			imageContext.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING, RenderingHints.VALUE_TEXT_ANTIALIAS_ON);
+			BufferedImage img = ImageManager.loadBufferedImage("images/gameOver.png");
+			imageContext.drawImage(img, (w - img.getWidth()) / 2, (h - img.getHeight()) / 2, null);
+
+			/*imageContext.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING, RenderingHints.VALUE_TEXT_ANTIALIAS_ON);
 			imageContext.setFont(new Font("Arial", Font.BOLD, 72));
 			imageContext.setColor(Color.WHITE);
 			String msg = "GAME OVER";
-			imageContext.drawString(msg, (w - imageContext.getFontMetrics().stringWidth(msg)) / 2, h / 2);
+			imageContext.drawString(msg, (w - imageContext.getFontMetrics().stringWidth(msg)) / 2, h / 2);*/
 
-			imageContext.setFont(new Font("Arial", Font.PLAIN, 24));
+			imageContext.setFont(new Font("Arial", Font.BOLD, 40));
+			imageContext.setColor(Color.WHITE);
 			String restartMsg = "Press 'Start New Game' to retry";
-			imageContext.drawString(restartMsg, (w - imageContext.getFontMetrics().stringWidth(restartMsg)) / 2, h / 2 + 60);
+			imageContext.drawString(restartMsg, 370, 500);
+
+			
 		}
 
 		g.drawImage(image, 0, 0, getWidth(), getHeight(), null);
@@ -314,6 +320,8 @@ public class GamePanel extends JPanel
 			
 			// Start a timer to trigger the actual grey-out after 500ms
 			new javax.swing.Timer(500, e -> {
+				soundManager.stopSound("background");
+				soundManager.playSound("died", false);
 				this.gameOver = true;
 				this.gameOverPending = false;
 				((javax.swing.Timer)e.getSource()).stop();
@@ -325,7 +333,7 @@ public class GamePanel extends JPanel
 	public void startGame() {				// initialise and start the game thread 
 
 		if (gameThread == null) {
-			//soundManager.playSound ("background", true);
+			soundManager.playSound ("background", true);
 
 			gameOver = false;
 
@@ -392,7 +400,7 @@ public class GamePanel extends JPanel
 
 	public void endGame() {					// end the game thread
 		isRunning = false;
-		//soundManager.stopClip ("background");
+		
 	}
 
 	

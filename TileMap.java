@@ -589,8 +589,8 @@ public class TileMap {
                 player.heal(10);
 
                 Random random = new Random();
-                int n = 2;
-                //random.nextInt(3);
+                int n = 5;
+                //random.nextInt(5);
                 if(n==0)
                     box.slowPlayer(10000);
                 else{
@@ -604,6 +604,18 @@ public class TileMap {
                                     box.tintTiles("green", lt, 20000);
                                 else
                                     box.tintTiles("red", lt, 20000);
+                            }
+                        }
+                        else {
+                            if(n==3){
+                                player.heal(100);
+                            }
+                            else {
+                                if(n==4){//FIXXX
+                                    player.setWidth(player.getWidth()*10);
+                                    player.setHeight(player.getHeight()*10);
+                                    box.enlargePlayer(10000);
+                                }
                             }
                         }
                     }
@@ -632,6 +644,18 @@ public class TileMap {
             if(timer>= duration){
                 player.setdx(player.getdx()+25);
                 box.setSlowed(false);
+            }
+        }
+
+        if(box.isEnlarged()){
+            int timer = box.getTimer();
+            int duration = box.getDuration();
+            timer = timer + 50;
+
+            if(timer>= duration){
+                player.setHeight(player.getHeight()/10);
+                player.setWidth(player.getWidth()/10);
+                box.setEnlarged(false);
             }
         }
             

@@ -11,7 +11,7 @@ public class MysteryBox{
     private int spriteW, spriteH, width, height;
     private int x, y;
 
-    private boolean disappeared, boosted, slowed, tinted;
+    private boolean disappeared, boosted, slowed, tinted, enlarged;
     private int alpha, duration, timer;
 
     private Player player;
@@ -41,6 +41,8 @@ public class MysteryBox{
         disappeared = false;
         boosted = false;
         slowed = false;
+        tinted = false;
+        enlarged = false;
     }
 
     public void update(){
@@ -97,6 +99,9 @@ public class MysteryBox{
     public boolean isBoosted(){
         return boosted;
     }
+    public boolean isEnlarged(){
+        return enlarged;
+    }
     public void setBoosted(boolean boosted){
         this.boosted = boosted;
     }
@@ -105,6 +110,9 @@ public class MysteryBox{
     }
     public void setTinted(boolean tinted){
         this.tinted = tinted;
+    }
+    public void setEnlarged(boolean enlarged){
+        this.enlarged = enlarged;
     }
 
     
@@ -135,6 +143,17 @@ public class MysteryBox{
         duration = time;
         timer = 0;
         slowed = true;
+        boosted = false;
+        tinted = false;
+    }
+
+    public void enlargePlayer(int time){
+        player.setWidth(player.getWidth()*10);
+        player.setHeight(player.getHeight()*10);
+        duration = time;
+        timer = 0;
+        enlarged = true;
+        slowed = false;
         boosted = false;
         tinted = false;
     }

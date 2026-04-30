@@ -1,8 +1,7 @@
-import javax.sound.sampled.AudioInputStream;		// for playing sound clips
-import javax.sound.sampled.*;
+// for playing sound clips
 import java.io.*;
-
-import java.util.HashMap;				// for storing sound clips
+import java.util.HashMap;
+import javax.sound.sampled.*;				// for storing sound clips
 
 
 public class SoundManager {				// a Singleton class
@@ -21,8 +20,8 @@ public class SoundManager {				// a Singleton class
 		//Clip clip = loadClip("sounds/background.wav");
 		//clips.put("background", clip);		// background theme sound
 
-		clip = loadClip("sounds/hitSound.wav");
-		clips.put("hit", clip);			// played when player's sprite collides 
+		//clip = loadClip("sounds/hitSound.wav");
+		//clips.put("hit", clip);			// played when player's sprite collides 
 							//   with another sprice
 
 		clip = loadClip("sounds/appearSound.wav");
@@ -31,6 +30,31 @@ public class SoundManager {				// a Singleton class
 
 		clip = loadClip("sounds/BirdSound.wav");
 		clips.put("birdSound", clip);		// played for bird-flying animation
+
+		clip = loadClip("sounds/epicBackground.wav");
+		clips.put("background", clip);	//background music
+		clip = loadClip("sounds/boxeffect1.wav");
+		clips.put("boxeffect1", clip);
+		clip = loadClip("sounds/boxeffect2.wav");
+		clips.put("boxeffect2", clip);
+		clip = loadClip("sounds/collectCoin.wav");
+		clips.put("coin", clip);
+		clip = loadClip("sounds/correctLetter.wav");
+		clips.put("correct", clip);
+		clip = loadClip("sounds/died.wav");
+		clips.put("died", clip);
+		clip = loadClip("sounds/fall.wav");
+		clips.put("fall", clip);
+		clip = loadClip("sounds/hit.wav");
+		clips.put("hit", clip);
+		clip = loadClip("sounds/lifeLost.wav");
+		clips.put("lostlife", clip);
+		clip = loadClip("sounds/loadIn.wav");
+		clips.put("loadIn", clip);
+		clip = loadClip("sounds/mysteryBox.wav");
+		clips.put("box", clip);
+		clip = loadClip("sounds/wrongLetter.wav");
+		clips.put("wrong", clip);
 	}
 
 

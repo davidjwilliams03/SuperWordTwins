@@ -50,6 +50,9 @@ public class GamePanel extends JPanel
 	private int clueIndex;
 	private String clue = "";
 	private char guessedChar;
+	private boolean wordComplete;
+	private int numGuessesCorrect;
+
 	private GameWindow window;
 
 	private Random random;
@@ -74,6 +77,11 @@ public class GamePanel extends JPanel
 
 		level = 1;
 		levelChange = false;
+
+		numGuessesCorrect = 0;
+		wordComplete = false;
+
+		loadRiddles();
 	}
 
 	public void setWindow(GameWindow window) {
@@ -110,7 +118,10 @@ public class GamePanel extends JPanel
 
 	public void correctGuess(char c){
 		guessedChar = c;
-		window.updateAns(c);
+		numGuessesCorrect += window.updateAns(c);
+		if(numGuessesCorrect == getAnswer().length()){
+			wordComplete = true;
+		}
 	}
 
 	public char getCorrectGuessChar(){

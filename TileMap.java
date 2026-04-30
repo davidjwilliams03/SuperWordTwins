@@ -7,6 +7,7 @@ import java.awt.geom.AffineTransform;
 import java.awt.image.BufferedImage;
 import java.util.Iterator;
 import java.util.LinkedList;
+import java.util.Random;
 
 /**
     The TileMap class contains the data for a tile-based
@@ -170,8 +171,8 @@ public class TileMap {
             lts.add(new LetterTile(tileimgs.get(i), letters[i], player));
         }
         //TO FIX: NOT ALL TILES ARE SAME SIZE...
-        lts.get(25).setx(14200);
-        lts.get(25). sety(4300);
+        lts.get(4).setx(14200);
+        lts.get(4). sety(4300);
 
         answer = panel.getAnswer();
         //System.out.println("Ans: " + answer);
@@ -583,6 +584,57 @@ public class TileMap {
         }
         for(MysteryBox box : mboxes){
             box.update();
+            if(box.collidesWithPlayer() && !box.isDisappeared()){
+                box.disappearBox(box);
+                player.heal(10);
+
+                Random random = new Random();
+                int n = 2;
+                //random.nextInt(3);
+                if(n==0)
+                    box.slowPlayer(10000);
+                else{
+                    if(n==1){
+                        box.speedPlayer(10000);;
+                    }
+                    else{
+                        if(n==2){
+                            for(LetterTile lt : lts){
+                                if(lt.isInAnswer(panel.getAnswer().toCharArray()))
+                                    box.tintTiles("green", lt, 20000);
+                                else
+                                    box.tintTiles("red", lt, 20000);
+                            }
+                        }
+                    }
+                    
+            }
+               
+            
+        }
+
+        if(box.isBoosted()){
+            int timer = box.getTimer();
+            int duration = box.getDuration();
+            timer = timer + 50;
+
+            if(timer>= duration){
+                player.setdx(player.getdx()-25);
+                box.setBoosted(false);
+            }
+        }
+
+        if(box.isSlowed()){
+            int timer = box.getTimer();
+            int duration = box.getDuration();
+            timer = timer + 50;
+
+            if(timer>= duration){
+                player.setdx(player.getdx()+25);
+                box.setSlowed(false);
+            }
+        }
+            
         }
         /*for(LetterTile lt : lts){
             lt.update();

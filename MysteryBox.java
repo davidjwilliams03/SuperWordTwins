@@ -11,7 +11,7 @@ public class MysteryBox{
     private int spriteW, spriteH, width, height;
     private int x, y;
 
-    private boolean disappeared, boosted, slowed;
+    private boolean disappeared, boosted, slowed, tinted;
     private int alpha, duration, timer;
 
     private Player player;
@@ -46,38 +46,6 @@ public class MysteryBox{
     public void update(){
         if(!disappeared){
             animation.update();
-        }
-
-        boolean collision = collidesWithPlayer();
-        if(collision&& !disappeared){
-            disappearBox(this);
-            player.heal(10);
-
-            random = new Random();
-            int n = random.nextInt(2);
-            if(n==0)
-                slowPlayer(10000);
-            else
-                speedPlayer(10000);
-            
-        }
-
-        if(boosted){
-            timer = timer + 50;
-
-            if(timer>= duration){
-                player.setdx(player.getdx()-25);
-                boosted = false;
-            }
-        }
-
-        if(slowed){
-            timer = timer + 50;
-
-            if(timer>= duration){
-                player.setdx(player.getdx()+25);
-                slowed = false;
-            }
         }
     }
 
@@ -126,12 +94,40 @@ public class MysteryBox{
     public boolean isDisappeared(){
         return disappeared;
     }
+    public boolean isBoosted(){
+        return boosted;
+    }
+    public void setBoosted(boolean boosted){
+        this.boosted = boosted;
+    }
+    public void setSlowed(boolean slowed){
+        this.slowed = slowed;
+    }
+    public void setTinted(boolean tinted){
+        this.tinted = tinted;
+    }
+
+    
+    public boolean isSlowed(){
+        return slowed;
+    }
+    public boolean isTinted(){
+        return tinted;
+    }
+    public int getTimer(){
+        return timer;
+    }
+    public int getDuration(){
+        return duration;
+    }
 
     public void speedPlayer(int time){
         player.setdx(player.getdx()+25);
         duration = time;
         timer = 0;
-        boosted = true;    
+        boosted = true;
+        slowed = false;
+        tinted = false;    
     }
 
     public void slowPlayer(int time){
@@ -139,6 +135,17 @@ public class MysteryBox{
         duration = time;
         timer = 0;
         slowed = true;
+        boosted = false;
+        tinted = false;
+    }
+
+    public void tintTiles(String colour, LetterTile lt, int time){
+        duration = time;
+        timer = 0;
+        lt.tintedCopy(colour);
+        tinted = true;
+        boosted = false; 
+        slowed = false;
     }
 
     public boolean collidesWithPlayer() {

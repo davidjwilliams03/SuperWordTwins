@@ -38,6 +38,10 @@ public class Player {
    private int initialVelocity;
    private boolean isCeilingWalking = false;
    
+   private int health = 100;
+   private final int MAX_HEALTH = 100;
+   private long lastDamageTime = 0;
+
    private boolean isClimbing = false;
    private int climbingSide = 0; // -1 for Left, 1 for Right
    private int awayFrames = 0;
@@ -64,6 +68,24 @@ public class Player {
    public boolean isClimbing() { return isClimbing; }
    public int getClimbingSide() { return climbingSide; }
    public boolean isCeilingWalking() { return isCeilingWalking; }
+
+   public int getHealth() { return health; }
+   public void setHealth(int health) { 
+      this.health = Math.min(MAX_HEALTH, Math.max(0, health)); 
+   }
+
+   public void takeDamage(int amount) {
+      // 500ms invincibility after taking damage from enemies
+      if (System.currentTimeMillis() - lastDamageTime > 500) {
+         this.health = Math.max(0, this.health - amount);
+         lastDamageTime = System.currentTimeMillis();
+      }
+   }
+
+   public void heal(int amount) {
+      health += amount;
+      if (health > MAX_HEALTH) health = MAX_HEALTH;
+   }
 
    /**
     * Sensor Box: Checks a 2-pixel wide strip just outside the player's bounds.

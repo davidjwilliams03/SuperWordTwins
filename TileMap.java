@@ -40,6 +40,7 @@ public class TileMap {
     private LinkedList<SpinningBlade> blades;
     private LinkedList<GroundSpike> spikes;
     private LinkedList<MysteryBox> mboxes;
+    private LinkedList<Enemy> enemies;
 
     private LinkedList<Coin> coins;
     private int coinsCollected;
@@ -92,6 +93,7 @@ public class TileMap {
         blades = new LinkedList<>();
         spikes = new LinkedList<>();
         mboxes = new LinkedList<>();
+        enemies = new LinkedList<>();
         coins = new LinkedList<>();
 
         axes.add(new PendulumAxe(11560, 5015, 200, ImageManager.loadImage("images/battle_axe.png")));
@@ -111,6 +113,10 @@ public class TileMap {
         spikes.add(new GroundSpike(6600, 7690, ImageManager.loadImage("images/groundspikes.png")));
         spikes.add(new GroundSpike(6700, 7690, ImageManager.loadImage("images/groundspikes.png")));
 
+        // Add a few enemies to the map near the starting area
+        enemies.add(new Goon(17200, 7141, ImageManager.loadImage("images/goon.png"), this));
+        enemies.add(new Goon(17500, 7141, ImageManager.loadImage("images/goon.png"), this));
+
         mboxes.add(new MysteryBox(14720, 4300, player));
         //mboxes.add(new MysteryBox(14900, 4300, player));
 
@@ -128,8 +134,8 @@ public class TileMap {
 
 	int x, y;
         // Adjusted starting coordinates to suit the 32x32 grid
-	x = 11308;
-	y = 5669;
+	x = 19368;
+	y = 2213;
 
 	//x = 1000;					// position player in 'random' location
 
@@ -401,6 +407,10 @@ public class TileMap {
             g2.drawImage(player.getImage(), pX, pY, pW, pH, null);
         }
 
+        for (Enemy enemy : enemies) {
+            enemy.draw(g2, offsetX, offsetY);
+        }
+
         // Draw Traps
         for (PendulumAxe axe : axes) {
             axe.draw(g2, offsetX, offsetY);
@@ -496,29 +506,44 @@ public class TileMap {
         for (PendulumAxe axe : axes) {
             axe.update();
             if (axe.collidesWith(player)) {
-                panel.endLevel(); // Or player.reset()
+                player.setHealth(0); // Instant death from traps
             }
         }
         for (SpinningBlade blade : blades) {
             blade.update();
             if (blade.collidesWith(player)) {
-                panel.endLevel();
+                player.setHealth(0); // Instant death from traps
             }
         }
         for (GroundSpike spike : spikes) {
             if (spike.collidesWith(player)) {
-                panel.endLevel();
+                player.setHealth(0); // Instant death from traps
+            }
+        }
+
+        for (Enemy enemy : enemies) {
+            enemy.update();
+            if (enemy.collidesWith(player)) {
+                player.takeDamage(10); // Chip damage from enemies
             }
         }
         for(MysteryBox box : mboxes){
             box.update();
         }
-        for(Coin coin : coins){
+
+        Iterator<Coin> coinIt = coins.iterator();
+        while (coinIt.hasNext()) {
+            Coin coin = coinIt.next();
             coin.update();
-            if(coin.isDisappeared()){
-                coins.remove(coin);
+            if (coin.isDisappeared()) {
+                coinIt.remove(); // Safely remove collected coin
                 coinsCollected++;
             }
+        }
+
+        if (player.getHealth() <= 0) {
+            panel.setGameOver();
+            return;
         }
 
 	if (heart.collidesWithPlayer()) {
@@ -536,6 +561,10 @@ public class TileMap {
 
     public int getCoinsCollected(){
         return coinsCollected;
+    }
+
+    public Player getPlayer() {
+        return player;
     }
 
 }

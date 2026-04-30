@@ -1,9 +1,10 @@
 import java.awt.Color;
+import java.awt.Font;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.Image;
+import java.awt.RenderingHints;
 import java.awt.event.KeyEvent;
-import java.awt.geom.Rectangle2D;
 import java.awt.image.BufferedImage;
 import java.io.BufferedReader;
 import java.io.FileReader;
@@ -20,7 +21,7 @@ public class GamePanel extends JPanel
 
 	private SoundManager soundManager;
 
-	private boolean isRunning;
+	private volatile boolean isRunning;
 	private boolean isPaused;
 
 	private Thread gameThread;
@@ -40,15 +41,18 @@ public class GamePanel extends JPanel
 	private boolean levelChange;
 	private int level;
 	private boolean gameOver;
+	private boolean gameOverPending;
 	private Image endImage;
 
 	private ArrayList<String> riddle;
-    private ArrayList<String> ans;
+	private ArrayList<String> ans;
 
 	private int clueIndex;
 	private String clue = "";
+	private GameWindow window;
 
 	private Random random;
+
 
 	public GamePanel () {
 
@@ -60,6 +64,7 @@ public class GamePanel extends JPanel
 
 		riddle = new ArrayList<>();
         ans = new ArrayList<>();
+		gameOverPending = false;
 
 		soundManager = SoundManager.getInstance();
 
@@ -68,31 +73,40 @@ public class GamePanel extends JPanel
 
 		level = 1;
 		levelChange = false;
-
 	}
 
-    public void loadRiddles() {
-        BufferedReader br = null;
-        String line = "";
+	public void setWindow(GameWindow window) {
+		this.window = window;
+	}
 
-        try {
-            br = new BufferedReader(new FileReader("riddles.csv"));
-            while((line = br.readLine()) != null) {
-                String[] row = line.split(",");
-                riddle.add(row[0].trim().toUpperCase());
-                ans.add(row[1].trim().toUpperCase());
-                
-        }
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-        
-         /*for(int i = 0; i < riddle.size(); i++){
-                System.out.println("Riddle: " + riddle.get(i));
-                System.out.println("Answer: " + ans.get(i));
+	public void loadRiddles() {
+		BufferedReader br = null;
+    	String line = "";
 
-            }*/
-    }
+	    try {
+    	    br = new BufferedReader(new FileReader("riddles.csv"));
+    	    while ((line = br.readLine()) != null) {
+    	        String[] row = line.split(",");
+    	        riddle.add(row[0].trim().toUpperCase());
+    	        ans.add(row[1].trim().toUpperCase());
+    	    }
+    	} catch (Exception e) {
+    	    e.printStackTrace();
+    	}
+	}
+
+	public String chooseClue() {
+		if (riddle != null && !riddle.isEmpty()) {
+			clueIndex = random.nextInt(riddle.size());
+			clue = riddle.get(clueIndex);
+		}
+		return clue;
+	}
+
+	public int getCoinsCollected() {
+    	if (tileMap == null) return 0;
+    	return tileMap.getCoinsCollected();
+}
 
 	public void createGameEntities() {
 		animation = new BirdAnimation();
@@ -104,7 +118,7 @@ public class GamePanel extends JPanel
 		try {
 			isRunning = true;
 			while (isRunning) {
-				if (!isPaused && !gameOver)
+				if (!isPaused && !gameOver && !gameOverPending)
 					gameUpdate();
 				gameRender();
 				Thread.sleep (50);	
@@ -114,7 +128,7 @@ public class GamePanel extends JPanel
 	}
 
 	private void checkInput() {
-		if (tileMap == null || gameOver) return;
+		if (tileMap == null || gameOver || gameOverPending) return;
 
 		if (GameWindow.isKeyPressed(KeyEvent.VK_LEFT)) moveLeft();
 		if (GameWindow.isKeyPressed(KeyEvent.VK_RIGHT)) moveRight();
@@ -125,6 +139,19 @@ public class GamePanel extends JPanel
 
 		checkInput();
 		tileMap.update();
+
+		// Update UI bars in GameWindow
+		if (window != null && tileMap != null) {
+			Player p = tileMap.getPlayer();
+			window.updateLevel(level);
+			window.updateHealth(p.getHealth());
+			window.updateCoins(tileMap.getCoinsCollected());
+			
+			int mapWidth = tileMap.getWidthPixels();
+			// Calculate percentage progress based on player X position
+			int progress = (mapWidth > 0) ? (int)((p.getX() * 100.0) / mapWidth) : 0;
+			window.updateProgress(Math.min(100, Math.max(0, progress)));
+		}
 
 		if (levelChange) {
 			levelChange = false;
@@ -178,24 +205,84 @@ public class GamePanel extends JPanel
 			animation.draw(imageContext);
 		}
 
+		drawHUD(imageContext);
+
 		if (gameOver) {
-			imageContext.setColor(new Color(0, 0, 0, 125));
-			imageContext.fill(new Rectangle2D.Double(0, 0, image.getWidth(), image.getHeight()));
+			// Apply grayscale effect to the frozen frame
+			int w = image.getWidth();
+			int h = image.getHeight();
+			int[] pixels = new int[w * h];
+			image.getRGB(0, 0, w, h, pixels, 0, w);
+
+			for (int i = 0; i < pixels.length; i++) {
+				int p = pixels[i];
+				int a = (p >> 24) & 0xff;
+				int r = (p >> 16) & 0xff;
+				int g_comp = (p >> 8) & 0xff;
+				int b = p & 0xff;
+				int avg = (r + g_comp + b) / 3;
+				pixels[i] = (a << 24) | (avg << 16) | (avg << 8) | avg;
+			}
+			image.setRGB(0, 0, w, h, pixels, 0, w);
+
+			// Darken the screen slightly for contrast
+			imageContext.setColor(new Color(0, 0, 0, 100));
+			imageContext.fillRect(0, 0, w, h);
+
+			// Draw Game Over Message
+			imageContext.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING, RenderingHints.VALUE_TEXT_ANTIALIAS_ON);
+			imageContext.setFont(new Font("Arial", Font.BOLD, 72));
+			imageContext.setColor(Color.WHITE);
+			String msg = "GAME OVER";
+			imageContext.drawString(msg, (w - imageContext.getFontMetrics().stringWidth(msg)) / 2, h / 2);
+
+			imageContext.setFont(new Font("Arial", Font.PLAIN, 24));
+			String restartMsg = "Press 'Start New Game' to retry";
+			imageContext.drawString(restartMsg, (w - imageContext.getFontMetrics().stringWidth(restartMsg)) / 2, h / 2 + 60);
 		}
 
 		g.drawImage(image, 0, 0, getWidth(), getHeight(), null);
 		imageContext.dispose();
 	}
 
-	public String chooseClue(){
-		if(riddle != null){
-			clueIndex = random.nextInt(riddle.size());
-			clue = riddle.get(clueIndex);
+	private void drawHUD(Graphics2D g2) {
+		if (tileMap == null) return;
+		
+		int health = tileMap.getPlayer().getHealth();
+		int barWidth = 200;
+		int barHeight = 20;
+		int x = 20;
+		int y = 20;
+
+		// Background (Red)
+		g2.setColor(Color.RED);
+		g2.fillRect(x, y, barWidth, barHeight);
+
+		// Current Health (Green)
+		g2.setColor(Color.GREEN);
+		int currentBarWidth = (int)((health / 100.0) * barWidth);
+		g2.fillRect(x, y, currentBarWidth, barHeight);
+
+		g2.setColor(Color.WHITE);
+		g2.setFont(new Font("Arial", Font.BOLD, 14));
+		g2.drawString("HEALTH", x, y - 5);
+	}
+
+	/**
+	 * Triggers the game over sequence with a slight delay so the 
+	 * player can see the collision before the screen freezes.
+	 */
+	public void setGameOver() {
+		if (!gameOver && !gameOverPending) {
+			gameOverPending = true;
+			
+			// Start a timer to trigger the actual grey-out after 500ms
+			new javax.swing.Timer(500, e -> {
+				this.gameOver = true;
+				this.gameOverPending = false;
+				((javax.swing.Timer)e.getSource()).stop();
+			}).start();
 		}
-
-		System.out.println("Clue:" + clue);
-
-		return clue;
 	}
 
 
@@ -233,35 +320,20 @@ public class GamePanel extends JPanel
 
 
 	public void startNewGame() {				// initialise and start a new game thread 
-		if (gameThread != null || !isRunning) {
-			//soundManager.playSound ("background", true);
-
-			endGame();
-
-			gameOver = false;
-			level = 1;
-
-			tileManager = new TileMapManager (this);
-
+		// Stop any existing game thread safely before starting a new one
+		if (gameThread != null) {
+			isRunning = false;
 			try {
-				tileMap = tileManager.loadMap("maps/map_export.txt");
-				int w, h;
-				w = tileMap.getWidth();
-				h = tileMap.getHeight();
-				System.out.println ("Width of tilemap " + w);
-				System.out.println ("Height of tilemap " + h);
+				gameThread.join(200); // Wait for the old thread to terminate
+			} catch (InterruptedException e) {
+				Thread.currentThread().interrupt();
 			}
-			catch (Exception e) {
-				System.out.println(e);
-				System.exit(0);
-			}
-
-			createGameEntities();
-
-			gameThread = new Thread(this);
-			gameThread.start();			
-
+			gameThread = null;
 		}
+
+		gameOver = false;
+		level = 1;
+		startGame(); // Use existing startGame logic to avoid duplication
 	}
 
 
@@ -310,13 +382,6 @@ public class GamePanel extends JPanel
 		isAnimShown = true;
 		animation.start();
 		
-	}
-
-	public int getCoinsCollected(){
-		if (tileMap == null) {
-        	return 0; 
-    	}
-		return tileMap.getCoinsCollected();
 	}
 
 

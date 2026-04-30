@@ -59,6 +59,10 @@ public class PendulumAxe {
         int axeX = pivotX + (int)(length * Math.sin(angle));
         int axeY = pivotY + (int)(length * Math.cos(angle));
 
-        return player.getBoundingRectangle().intersects(axeX, axeY, (axeWidth - 100), (axeHeight - 50));
+        // Narrow the hitbox to center on the blade at the bottom of the image
+        // The previous hitbox was too large (almost the whole 512x512 area)
+        return player.getBoundingRectangle().intersects(
+            axeX + 190, axeY + 380, 140, 110
+        );
     }
 }

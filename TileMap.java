@@ -40,7 +40,9 @@ public class TileMap {
     private LinkedList<SpinningBlade> blades;
     private LinkedList<GroundSpike> spikes;
     private LinkedList<MysteryBox> mboxes;
+
     private LinkedList<Coin> coins;
+    private int coinsCollected;
 
     private LinkedList sprites;
     private Image skyBackground;
@@ -117,6 +119,7 @@ public class TileMap {
         for(int i = 0; i < 1; i++){
             coins.add(new Coin(startx + (i*10), starty, player));
         }
+        coinsCollected = 0;
 
 
 	heart = new Heart (panel, player);
@@ -412,7 +415,8 @@ public class TileMap {
             box.draw(g2, offsetX, offsetY);
         }
         for(Coin coin : coins){
-            coin.draw(g2, offsetX, offsetY);
+            if(!coin.isDisappeared())
+                coin.draw(g2, offsetX, offsetY);
         }
 
 	// draw Heart sprite
@@ -511,6 +515,10 @@ public class TileMap {
         }
         for(Coin coin : coins){
             coin.update();
+            if(coin.isDisappeared()){
+                coins.remove(coin);
+                coinsCollected++;
+            }
         }
 
 	if (heart.collidesWithPlayer()) {
@@ -524,6 +532,10 @@ public class TileMap {
 		panel.endLevel();
 	}
 
+    }
+
+    public int getCoinsCollected(){
+        return coinsCollected;
     }
 
 }

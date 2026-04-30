@@ -14,12 +14,14 @@ public class GameWindow extends JFrame
 	private JLabel statusBarL;
 	private JLabel keyL;
 	private JLabel mouseL;
+	private JLabel collectedL;
 
 	// declare text fields
 
 	private JTextField statusBarTF;
 	private JTextField keyTF;
 	private JTextField mouseTF;
+	private JTextField collectedTF;
 
 	// declare buttons
 
@@ -45,7 +47,7 @@ public class GameWindow extends JFrame
 	@SuppressWarnings({"unchecked"})
 	public GameWindow() {
  
-		setTitle ("Tiled Bat and Ball Game: Ordinary Windowed Mode");
+		setTitle ("Super Word Twins!");
 		setSize (1350, 900);
 
 		// create user interface objects
@@ -55,20 +57,24 @@ public class GameWindow extends JFrame
 		statusBarL = new JLabel ("Application Status: ");
 		keyL = new JLabel("Key Pressed: ");
 		mouseL = new JLabel("Location of Mouse Click: ");
+		collectedL = new JLabel ("Number of Coins Collected: ");
 
 		// create text fields and set their colour, etc.
 
 		statusBarTF = new JTextField (25);
 		keyTF = new JTextField (25);
 		mouseTF = new JTextField (25);
+		collectedTF = new JTextField(2);
 
 		statusBarTF.setEditable(false);
 		keyTF.setEditable(false);
 		mouseTF.setEditable(false);
+		collectedTF.setEditable(false);
 
 		statusBarTF.setBackground(Color.CYAN);
 		keyTF.setBackground(Color.YELLOW);
 		mouseTF.setBackground(Color.GREEN);
+		collectedTF.setBackground(Color.WHITE);
 
 		// create buttons
 
@@ -100,12 +106,12 @@ public class GameWindow extends JFrame
 		// create the gamePanel for game entities
 
 		gamePanel = new GamePanel();
-        	gamePanel.setPreferredSize(new Dimension(1300, 700));
+        	gamePanel.setPreferredSize(new Dimension(1300, 600));
 
 		// create infoPanel
 
 		JPanel infoPanel = new JPanel();
-		gridLayout = new GridLayout(3, 2);
+		gridLayout = new GridLayout(4, 2);
 		infoPanel.setLayout(gridLayout);
 		infoPanel.setBackground(Color.ORANGE);
 
@@ -120,7 +126,9 @@ public class GameWindow extends JFrame
 		infoPanel.add (mouseL);
 		infoPanel.add (mouseTF);
 
-		
+		infoPanel.add(collectedL);
+        infoPanel.add(collectedTF);
+
 		// create buttonPanel
 
 		JPanel buttonPanel = new JPanel();
@@ -175,6 +183,7 @@ public class GameWindow extends JFrame
 		statusBarTF.setText(command + " button clicked.");
 
 		if (command.equals(startB.getText())) {
+			collectedTF.setText("0");
 			gamePanel.startGame();
 		}
 
@@ -218,6 +227,10 @@ public class GameWindow extends JFrame
 
 	public void keyReleased(KeyEvent e) {
 		int keyCode = e.getKeyCode();
+
+		int coinsCollected = gamePanel.getCoinsCollected();
+        collectedTF.setText(String.valueOf(coinsCollected));
+
 		if (keyCode >= 0 && keyCode < keys.length) {
 			keys[keyCode] = false;
 		}

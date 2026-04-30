@@ -260,6 +260,13 @@ public class GamePanel extends JPanel
 		
 	}
 
+	public int getCoinsCollected(){
+		if (tileMap == null) {
+        	return 0; 
+    	}
+		return tileMap.getCoinsCollected();
+	}
+
 
 	public void endLevel() {
 		level = level + 1;

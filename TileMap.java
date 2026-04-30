@@ -60,6 +60,9 @@ public class TileMap {
     private GamePanel panel;
     private Dimension dimension;
 
+    private String answer;
+    private char[] answerLetters;
+
     /**
         Creates a new TileMap with the specified width and
         height (in number of tiles) of the map.
@@ -166,25 +169,30 @@ public class TileMap {
             if (tileimgs.get(i) == null) System.out.println("Image " + letters[i] + " failed to load");
             lts.add(new LetterTile(tileimgs.get(i), letters[i], player));
         }
-        lts.get(0).setx(19200);
-        lts.get(0). sety(2200);
+        //TO FIX: NOT ALL TILES ARE SAME SIZE...
+        lts.get(25).setx(14200);
+        lts.get(25). sety(4300);
 
+        answer = panel.getAnswer();
+        //System.out.println("Ans: " + answer);
+        answerLetters = answer.toCharArray();
+        //System.out.println("Answer Letters: " + answerLetters.length);
 
-	heart = new Heart (panel, player);
+	    heart = new Heart (panel, player);
 		
         sprites = new LinkedList();
 
-	int x, y;
+	    int x, y;
         // Adjusted starting coordinates to suit the 32x32 grid
-	x = 19368;
-	y = 2213;
+	    x = 19368;
+	    y = 2213;
 
-	//x = 1000;					// position player in 'random' location
+	    //x = 1000;					// position player in 'random' location
 
         player.setX(x);
         player.setY(y);
 
-	System.out.println("Player coordinates: " + x + "," + y);
+	    System.out.println("Player coordinates: " + x + "," + y);
 
     }
 
@@ -576,9 +584,44 @@ public class TileMap {
         for(MysteryBox box : mboxes){
             box.update();
         }
-        for(LetterTile lt : lts){
+        /*for(LetterTile lt : lts){
             lt.update();
+            if(lt.isDisappeared()){
+                char c = lt.getLetter();
+                for (int i = 0; i < answerLetters.length; i++){
+                    if(c == answerLetters[i]){
+                        lt.setCaptured(true);
+                        break;
+                    }
+                }
+                if(!lt.isCaptured()){
+                    player.takeDamage(10);
+                }
+                lts.remove(lt);
+            }
+            
+
+        }*/
+       Iterator<LetterTile> lit = lts.iterator();
+       while(lit.hasNext()){
+        LetterTile lt = lit.next();
+        lt.update();
+
+        if(lt.isDisappeared()){
+            char c = lt.getLetter();
+            lt.setCaptured(false);
+            for(char l: answerLetters){
+                if(c == l){
+                    lt.setCaptured(true);
+                    break;
+                }
+            }
+            if(!lt.isCaptured()){
+                player.takeDamage(10);
+            }
+            lit.remove();
         }
+       }
 
 
         Iterator<Coin> coinIt = coins.iterator();

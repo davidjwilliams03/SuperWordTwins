@@ -16,7 +16,8 @@ public class GameWindow extends JFrame
 	private JLabel keyL;
 	private JLabel mouseL;
 	private JLabel collectedL;
-	//private JLabel clueL;
+	private JLabel clueL;
+	private JLabel ansL;
 	private JLabel coinsL;
 	private JLabel levelL;
 	private JLabel healthL;
@@ -29,6 +30,7 @@ public class GameWindow extends JFrame
 	private JTextField mouseTF;
 	private JTextField collectedTF;
 	private JTextField clueTF;
+	private JTextField answerTF;
 	private JTextField coinsTF;
 	private JTextField levelTF;
 	private JTextField healthTF;
@@ -69,7 +71,8 @@ public class GameWindow extends JFrame
 		keyL = new JLabel("Key Pressed: ");
 		mouseL = new JLabel("Location of Mouse Click: ");
 		collectedL = new JLabel ("Number of Coins Collected: ");
-		//clueL = new JLabel("Clue: ");
+		clueL = new JLabel("Clue: ");
+		ansL = new JLabel("Answer: ");
 		coinsL = new JLabel("Coins Collected: ");
 		levelL = new JLabel("Current Level: ");
 		healthL = new JLabel("Player Health: ");
@@ -82,6 +85,7 @@ public class GameWindow extends JFrame
 		mouseTF = new JTextField (25);
 		collectedTF = new JTextField(2);
 		clueTF = new JTextField(100);
+		answerTF = new JTextField(20);
 		coinsTF = new JTextField (25);
 		levelTF = new JTextField (25);
 		healthTF = new JTextField (25);
@@ -93,10 +97,15 @@ public class GameWindow extends JFrame
 		mouseTF.setEditable(false);
 		collectedTF.setEditable(false);
 		clueTF.setEditable(false);
+		answerTF.setEditable(false);
 		coinsTF.setEditable(false);
 		levelTF.setEditable(false);
 		healthTF.setEditable(false);
 		progressTF.setEditable(false);
+
+		//align
+		clueTF.setHorizontalAlignment(JTextField.CENTER);
+		answerTF.setHorizontalAlignment(JTextField.CENTER);
 
 		// Set background colors
 		statusBarTF.setBackground(Color.CYAN);
@@ -104,6 +113,7 @@ public class GameWindow extends JFrame
 		mouseTF.setBackground(Color.GREEN);
 		collectedTF.setBackground(Color.WHITE);
 		clueTF.setBackground(Color.WHITE);
+		answerTF.setBackground(Color.WHITE);
 		coinsTF.setBackground(Color.YELLOW);
 		levelTF.setBackground(Color.WHITE);
 		healthTF.setBackground(Color.GREEN);
@@ -183,15 +193,16 @@ public class GameWindow extends JFrame
 
 		//create cluePanel
 		JPanel cluePanel = new JPanel();
-		gridLayout = new GridLayout(1, 2);
-		cluePanel.setLayout(gridLayout);
-		cluePanel.setBackground(Color.WHITE);
+		BoxLayout boxLayout = new BoxLayout(cluePanel, BoxLayout.Y_AXIS);
+		cluePanel.setBackground(Color.ORANGE);
 
 		// add user interface objects to infoPanel
 	
 		//cluePanel.add (clueL);
 		cluePanel.add (clueTF);
-
+		//cluePanel.add(ansL);
+		cluePanel.add(Box.createVerticalStrut(10));
+		cluePanel.add(answerTF);
 
 		// add sub-panels with GUI objects to mainPanel and set its colour
 
@@ -244,7 +255,12 @@ public class GameWindow extends JFrame
 		if (command.equals(startB.getText())) {
 			gamePanel.loadRiddles();
 			clueTF.setText(gamePanel.chooseClue());
+			for(int i = 0; i < gamePanel.numCharAns(); i++){
+				answerTF.setText(answerTF.getText() + "_ ");
+			}
+
 			collectedTF.setText("0");
+
 			gamePanel.startGame();
 		}
 

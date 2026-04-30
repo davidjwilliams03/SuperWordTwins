@@ -103,6 +103,21 @@ public class GamePanel extends JPanel
 		return clue;
 	}
 
+	public String getAnswer() {
+		return ans.get(clueIndex);
+	}
+
+	public int numCharAns(){
+		return getAnswer().length();
+	}
+
+	public ArrayList<String> getRiddles(){
+		return riddle;
+	}
+	public ArrayList<String> getAnswers(){
+		return ans;
+	}
+
 	public int getCoinsCollected() {
     	if (tileMap == null) return 0;
     	return tileMap.getCoinsCollected();

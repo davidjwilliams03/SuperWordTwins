@@ -3,6 +3,7 @@ import java.awt.image.BufferedImage;
 
 public class LetterTile{
     private BufferedImage tile;
+    private BufferedImage tileCopy;
     private char letter; 
     private Player player;
 
@@ -15,8 +16,8 @@ public class LetterTile{
         this.letter = letter;
         this.player = player;
 
-        width = tile.getWidth()/2;
-        height = tile.getHeight()/2;
+        width = tile.getWidth()/10;
+        height = tile.getHeight()/10;
 
         captured = false;
         disappeared = false;
@@ -38,6 +39,18 @@ public class LetterTile{
     public int gety(){
         return this.y;
     }
+    public char getLetter(){
+        return letter;
+    }
+
+    public void setCaptured(boolean captured){
+        this.captured = captured;
+    }
+
+    public boolean isCaptured(){
+        return captured;
+    }
+
 
     private int disappear(int pixel){
         int red, green, blue, newPixel;
@@ -55,14 +68,15 @@ public class LetterTile{
     }
 
     private void disappearTile(){
+        tileCopy = ImageManager.copyImage(tile);
         int[] pix = new int[width*height];
-        tile.getRGB(0, 0,width, height, pix, 0, width);
+        tileCopy.getRGB(0, 0,width, height, pix, 0, width);
 
         for(int i = 0; i < pix.length; i++){
             pix[i]=disappear(pix[i]);
         }
 
-        tile.setRGB(0, 0,width, height, pix, 0, width);
+        tileCopy.setRGB(0, 0,width, height, pix, 0, width);
         this.disappeared = true;
     }
 
@@ -71,7 +85,13 @@ public class LetterTile{
     }
 
     public void draw(Graphics2D g2, int offsetX, int offsetY) {
-        g2.drawImage(tile, x+offsetX, y+offsetY, width, height, null);
+        if(disappeared){
+            g2.drawImage(tileCopy, x+offsetX, y+offsetY, width, height, null);
+        }
+        else {
+            g2.drawImage(tile, x+offsetX, y+offsetY, width, height, null);
+        }
+        
     }
         
 	

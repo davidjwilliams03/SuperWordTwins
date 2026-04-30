@@ -15,6 +15,7 @@ public class GameWindow extends JFrame
 	private JLabel keyL;
 	private JLabel mouseL;
 	private JLabel collectedL;
+	//private JLabel clueL;
 
 	// declare text fields
 
@@ -22,6 +23,7 @@ public class GameWindow extends JFrame
 	private JTextField keyTF;
 	private JTextField mouseTF;
 	private JTextField collectedTF;
+	private JTextField clueTF;
 
 	// declare buttons
 
@@ -58,6 +60,7 @@ public class GameWindow extends JFrame
 		keyL = new JLabel("Key Pressed: ");
 		mouseL = new JLabel("Location of Mouse Click: ");
 		collectedL = new JLabel ("Number of Coins Collected: ");
+		//clueL = new JLabel("Clue: ");
 
 		// create text fields and set their colour, etc.
 
@@ -65,16 +68,21 @@ public class GameWindow extends JFrame
 		keyTF = new JTextField (25);
 		mouseTF = new JTextField (25);
 		collectedTF = new JTextField(2);
+		clueTF = new JTextField(100);
+
 
 		statusBarTF.setEditable(false);
 		keyTF.setEditable(false);
 		mouseTF.setEditable(false);
 		collectedTF.setEditable(false);
+		clueTF.setEditable(false);
 
 		statusBarTF.setBackground(Color.CYAN);
 		keyTF.setBackground(Color.YELLOW);
 		mouseTF.setBackground(Color.GREEN);
 		collectedTF.setBackground(Color.WHITE);
+		clueTF.setBackground(Color.WHITE);
+
 
 		// create buttons
 
@@ -106,7 +114,7 @@ public class GameWindow extends JFrame
 		// create the gamePanel for game entities
 
 		gamePanel = new GamePanel();
-        	gamePanel.setPreferredSize(new Dimension(1300, 600));
+        gamePanel.setPreferredSize(new Dimension(1300, 600));
 
 		// create infoPanel
 
@@ -144,11 +152,25 @@ public class GameWindow extends JFrame
 		buttonPanel.add (focusB);
 		buttonPanel.add (exitB);
 
+		//create cluePanel
+		JPanel cluePanel = new JPanel();
+		gridLayout = new GridLayout(1, 2);
+		cluePanel.setLayout(gridLayout);
+		cluePanel.setBackground(Color.WHITE);
+
+		// add user interface objects to infoPanel
+	
+		//cluePanel.add (clueL);
+		cluePanel.add (clueTF);
+
+
 		// add sub-panels with GUI objects to mainPanel and set its colour
 
 		mainPanel.add(infoPanel);
+		mainPanel.add(cluePanel);
 		mainPanel.add(gamePanel);
 		mainPanel.add(buttonPanel);
+		
 		mainPanel.setBackground(Color.PINK);
 
 		// set up mainPanel to respond to keyboard and mouse
@@ -184,6 +206,7 @@ public class GameWindow extends JFrame
 
 		if (command.equals(startB.getText())) {
 			gamePanel.loadRiddles();
+			clueTF.setText(gamePanel.chooseClue());
 			collectedTF.setText("0");
 			gamePanel.startGame();
 		}

@@ -8,7 +8,7 @@ import java.awt.image.BufferedImage;
 import java.io.BufferedReader;
 import java.io.FileReader;
 import java.util.ArrayList;
-import java.util.List;
+import java.util.Random;
 import javax.swing.JPanel;
 
 /**
@@ -45,6 +45,10 @@ public class GamePanel extends JPanel
 	private ArrayList<String> riddle;
     private ArrayList<String> ans;
 
+	private int clueIndex;
+	private String clue = "";
+
+	private Random random;
 
 	public GamePanel () {
 
@@ -52,6 +56,10 @@ public class GamePanel extends JPanel
 		isPaused = false;
 		isAnimShown = false;
 		isAnimPaused = false;
+		random = new Random();
+
+		riddle = new ArrayList<>();
+        ans = new ArrayList<>();
 
 		soundManager = SoundManager.getInstance();
 
@@ -64,8 +72,6 @@ public class GamePanel extends JPanel
 	}
 
     public void loadRiddles() {
-        List<String> riddle = new ArrayList<>();
-        List<String> ans = new ArrayList<>();
         BufferedReader br = null;
         String line = "";
 
@@ -180,6 +186,18 @@ public class GamePanel extends JPanel
 		g.drawImage(image, 0, 0, getWidth(), getHeight(), null);
 		imageContext.dispose();
 	}
+
+	public String chooseClue(){
+		if(riddle != null){
+			clueIndex = random.nextInt(riddle.size());
+			clue = riddle.get(clueIndex);
+		}
+
+		System.out.println("Clue:" + clue);
+
+		return clue;
+	}
+
 
 	public void startGame() {				// initialise and start the game thread 
 

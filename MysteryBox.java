@@ -51,6 +51,7 @@ public class MysteryBox{
         boolean collision = collidesWithPlayer();
         if(collision&& !disappeared){
             disappearBox(this);
+            player.heal(10);
 
             random = new Random();
             int n = random.nextInt(2);

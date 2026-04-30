@@ -48,14 +48,14 @@ public class Batman {
 
     public void loadAnimations(){//load all animations
         //idle 
-        idleSheet = ImageManager.loadBufferedImage("images/characters/batmanIdle.png");
+        idleSheet = ImageManager.loadBufferedImage("images/characters/batman/batmanIdle.png");
         for(int i = 0; i < 4; i++){
             frame = idleSheet.getSubimage(i*62, 0, 62, 90);
             idleAnim.addFrame(frame, 150);
         }
 
         //run left
-        runLSheet = ImageManager.loadBufferedImage("images/characters/batmanWalkL.png");
+        runLSheet = ImageManager.loadBufferedImage("images/characters/batman/batmanWalkL.png");
         for(int i = 0; i < 5; i++){
             frame = runLSheet.getSubimage(i*71, 0, 71, 92);
             runL.addFrame(frame, 110);
@@ -66,68 +66,68 @@ public class Batman {
         }
         
         //run right
-        runRSheet = ImageManager.loadBufferedImage("images/characters/batmanWalkR.png");
-        frame = ImageManager.loadBufferedImage("images/characters/r1.png");
+        runRSheet = ImageManager.loadBufferedImage("images/characters/batman/batmanWalkR.png");
+        frame = ImageManager.loadBufferedImage("images/characters/batman/r1.png");
         runR.addFrame(frame, 110);
-        frame = ImageManager.loadBufferedImage("images/characters/r2.png");
+        frame = ImageManager.loadBufferedImage("images/characters/batman/r2.png");
         runR.addFrame(frame, 110);
-        frame = ImageManager.loadBufferedImage("images/characters/r3.png");
+        frame = ImageManager.loadBufferedImage("images/characters/batman/r3.png");
         runR.addFrame(frame, 110);
-        frame = ImageManager.loadBufferedImage("images/characters/r4.png");
+        frame = ImageManager.loadBufferedImage("images/characters/batman/r4.png");
         runR.addFrame(frame, 110);
-        frame = ImageManager.loadBufferedImage("images/characters/r5.png");
+        frame = ImageManager.loadBufferedImage("images/characters/batman/r5.png");
         runR.addFrame(frame, 110);
-        frame = ImageManager.loadBufferedImage("images/characters/r4.png");
+        frame = ImageManager.loadBufferedImage("images/characters/batman/r4.png");
         runR.addFrame(frame, 110);
-        frame = ImageManager.loadBufferedImage("images/characters/r3.png");
+        frame = ImageManager.loadBufferedImage("images/characters/batman/r3.png");
         runR.addFrame(frame, 110);
-        frame = ImageManager.loadBufferedImage("images/characters/r2.png");
+        frame = ImageManager.loadBufferedImage("images/characters/batman/r2.png");
         runR.addFrame(frame, 110);
 
         //jump
-        jumpSheet = ImageManager.loadBufferedImage("images/characters/batmanJump.png");
-        frame = ImageManager.loadBufferedImage("images/characters/j1.png");
+        jumpSheet = ImageManager.loadBufferedImage("images/characters/batman/batmanjump.png");
+        frame = ImageManager.loadBufferedImage("images/characters/batman/j1.png");
         jump.addFrame(frame, 200);
-        frame = ImageManager.loadBufferedImage("images/characters/j2.png");
+        frame = ImageManager.loadBufferedImage("images/characters/batman/j2.png");
         jump.addFrame(frame, 200); 
-        frame = ImageManager.loadBufferedImage("images/characters/j3.png");
+        frame = ImageManager.loadBufferedImage("images/characters/batman/j3.png");
         jump.addFrame(frame, 300);   
-        frame = ImageManager.loadBufferedImage("images/characters/j4.png");
+        frame = ImageManager.loadBufferedImage("images/characters/batman/j4.png");
         jump.addFrame(frame, 110);    
 
         //fall
-        fallSheet = ImageManager.loadBufferedImage("images/characters/batmanFall.png");
-        frame = ImageManager.loadBufferedImage("images/characters/fall1.png");
+        fallSheet = ImageManager.loadBufferedImage("images/characters/batman/batmanFall.png");
+        frame = ImageManager.loadBufferedImage("images/characters/batman/fall1.png");
         fall.addFrame(frame, 500);
-        frame = ImageManager.loadBufferedImage("images/characters/fall2.png");
+        frame = ImageManager.loadBufferedImage("images/characters/batman/fall2.png");
         fall.addFrame(frame, 500);
-        frame = ImageManager.loadBufferedImage("images/characters/fall3.png");
+        frame = ImageManager.loadBufferedImage("images/characters/batman/fall3.png");
         fall.addFrame(frame, 500);
-        frame = ImageManager.loadBufferedImage("images/characters/fall4.png");
+        frame = ImageManager.loadBufferedImage("images/characters/batman/fall4.png");
         fall.addFrame(frame, 500);
 
         //recover after fall
-        recoverSheet = ImageManager.loadBufferedImage("images/characters/batmanRecover.png");
-        frame = ImageManager.loadBufferedImage("images/characters/recover1.png");
+        recoverSheet = ImageManager.loadBufferedImage("images/characters/batman/batmanRecover.png");
+        frame = ImageManager.loadBufferedImage("images/characters/batman/recover1.png");
         recover.addFrame(frame, 250);
-        frame = ImageManager.loadBufferedImage("images/characters/recover2.png");
+        frame = ImageManager.loadBufferedImage("images/characters/batman/recover2.png");
         recover.addFrame(frame, 250);
-        frame = ImageManager.loadBufferedImage("images/characters/recover3.png");
+        frame = ImageManager.loadBufferedImage("images/characters/batman/recover3.png");
         recover.addFrame(frame, 250);
         
         //attack 1
-        attack1Sheet = ImageManager.loadBufferedImage("images/characters/batmanAttack1.png");
-        frame = ImageManager.loadBufferedImage("images/characters/a1.1.png");
+        attack1Sheet = ImageManager.loadBufferedImage("images/characters/batman/batmanAttack1.png");
+        frame = ImageManager.loadBufferedImage("images/characters/batman/a1.1.png");
         attack1.addFrame(frame, 100);
-        frame = ImageManager.loadBufferedImage("images/characters/a1.2.png");
+        frame = ImageManager.loadBufferedImage("images/characters/batman/a1.2.png");
         attack1.addFrame(frame, 100);
-        frame = ImageManager.loadBufferedImage("images/characters/a1.3.png");
+        frame = ImageManager.loadBufferedImage("images/characters/batman/a1.3.png");
         attack1.addFrame(frame, 200);
-        frame = ImageManager.loadBufferedImage("images/characters/a1.2.png");
+        frame = ImageManager.loadBufferedImage("images/characters/batman/a1.2.png");
         attack1.addFrame(frame, 100);
 
         //attack 2
-        attack2Sheet = ImageManager.loadBufferedImage("images/characters/batmanAttack2.png");
+        attack2Sheet = ImageManager.loadBufferedImage("images/characters/batman/batmanAttack2.png");
         for(int i = 0; i < 4; i++){
             frame = attack2Sheet.getSubimage(i*81, 0, 81, 84);
             attack2.addFrame(frame, 100);

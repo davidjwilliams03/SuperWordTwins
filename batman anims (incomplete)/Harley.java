@@ -22,7 +22,7 @@ public class Harley{
     }
 
     public void loadAnimations(){
-        idleSheet = ImageManager.loadBufferedImage("images/characters/hqIdle.png");
+        idleSheet = ImageManager.loadBufferedImage("images/characters/harley/hqIdle.png");
         for(int i = 0; i < 4; i++){
             frame = idleSheet.getSubimage(i*96, 0, 96, 97);
             idle.addFrame(frame, 150);

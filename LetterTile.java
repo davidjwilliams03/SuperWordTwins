@@ -16,8 +16,8 @@ public class LetterTile{
         this.letter = letter;
         this.player = player;
 
-        width = tile.getWidth()/10;
-        height = tile.getHeight()/10;
+        width = 92;
+        height = 92;
 
         captured = false;
         disappeared = false;

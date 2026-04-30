@@ -49,6 +49,7 @@ public class GamePanel extends JPanel
 
 	private int clueIndex;
 	private String clue = "";
+	private char guessedChar;
 	private GameWindow window;
 
 	private Random random;
@@ -105,6 +106,15 @@ public class GamePanel extends JPanel
 
 	public String getAnswer() {
 		return ans.get(clueIndex);
+	}
+
+	public void correctGuess(char c){
+		guessedChar = c;
+		window.updateAns(c);
+	}
+
+	public char getCorrectGuessChar(){
+		return guessedChar;
 	}
 
 	public int numCharAns(){

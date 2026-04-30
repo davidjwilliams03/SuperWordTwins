@@ -613,6 +613,7 @@ public class TileMap {
             for(char l: answerLetters){
                 if(c == l){
                     lt.setCaptured(true);
+                    panel.correctGuess(c);
                     break;
                 }
             }

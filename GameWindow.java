@@ -302,6 +302,21 @@ public class GameWindow extends JFrame
 		progressTF.setText(progress + "%");
 	}
 
+	public void updateAns(char c){
+		char[] answer = gamePanel.getAnswer().toCharArray();
+		String updated= "";
+		for (int i = 0; i < answer.length; i++){
+			if(c == answer[i]){
+				updated = updated + c + " ";
+			}
+			else{
+				updated = updated + "_ " ;
+			}
+		}
+		answerTF.setText(updated);
+
+	}
+
 	public void focusGained(FocusEvent e) {}
 
 	public void focusLost(FocusEvent e) {

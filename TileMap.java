@@ -126,8 +126,10 @@ public class TileMap {
         spikes.add(new GroundSpike(6700, 7690, ImageManager.loadImage("images/groundspikes.png")));
 
         // Add a few enemies to the map near the starting area
-        enemies.add(new Goon(17200, 7141, ImageManager.loadImage("images/goon.png"), this));
-        enemies.add(new Goon(17500, 7141, ImageManager.loadImage("images/goon.png"), this));
+        // enemies.add(new Goon(17200, 7141, ImageManager.loadImage("images/goon.png"),
+        // this));
+        // enemies.add(new Goon(17500, 7141, ImageManager.loadImage("images/goon.png"),
+        // this));
 
         mboxes.add(new MysteryBox(14720, 4300, player));
         mboxes.add(new MysteryBox(6500, 6333, player));
@@ -336,19 +338,56 @@ public class TileMap {
         tileimgs.add(ImageManager.loadBufferedImage("images/Z.png"));
         // create letter tiles using corresponding indexes.
 
-        for (int i = 0; i < 26; i++) {
-            if (tileimgs.get(i) == null)
-                System.out.println("Image " + letters[i] + " failed to load");
-            lts.add(new LetterTile(tileimgs.get(i), letters[i], player));
-        }
-        // TO FIX: NOT ALL TILES ARE SAME SIZE...
-        lts.get(4).setx(14200);
-        lts.get(4).sety(4300);
-
         answer = panel.getAnswer();
-        // System.out.println("Ans: " + answer);
-        answerLetters = answer.toCharArray();
-        // System.out.println("Answer Letters: " + answerLetters.length);
+        answerLetters = answer.toUpperCase().toCharArray();
+
+        // Define the 13 locations
+        int[] locX = { 568, 3284, 5540, 4012, 3968, 10316, 10072, 9872, 15256, 14876, 17152, 18148, 20504 };
+        int[] locY = { 6559, 6309, 6540, 7269, 7104, 8448, 6885, 6117, 5669, 6629, 6053, 4005, 1701 };
+
+        // Prepare a pool of letters for these 13 slots
+        java.util.ArrayList<Character> letterPool = new java.util.ArrayList<>();
+
+        // 1. Add all unique alphabetic letters from the answer
+        java.util.Set<Character> uniqueAnswerLetters = new java.util.HashSet<>();
+        for (char c : answerLetters) {
+            if (Character.isLetter(c)) {
+                uniqueAnswerLetters.add(c);
+            }
+        }
+
+        for (char c : uniqueAnswerLetters) {
+            letterPool.add(c);
+        }
+
+        // 2. Fill the rest with random wrong letters
+        java.util.Random rand = new java.util.Random();
+        while (letterPool.size() < locX.length) {
+            char randomChar = (char) ('A' + rand.nextInt(26));
+            if (!uniqueAnswerLetters.contains(randomChar)) {
+                letterPool.add(randomChar);
+            }
+        }
+
+        // 3. Shuffle the pool to distribute correct letters randomly
+        java.util.Collections.shuffle(letterPool);
+
+        // 4. Create and place the tiles
+        for (int i = 0; i < locX.length; i++) {
+            char c = letterPool.get(i);
+            int letterIndex = c - 'A';
+            if (letterIndex >= 0 && letterIndex < 26) {
+                BufferedImage img = tileimgs.get(letterIndex);
+                if (img == null) {
+                    System.out.println("Image " + c + " failed to load");
+                    img = tileimgs.get(0);
+                }
+                LetterTile lt = new LetterTile(img, c, player);
+                lt.setx(locX[i]);
+                lt.sety(locY[i]);
+                lts.add(lt);
+            }
+        }
 
         sprites = new LinkedList();
         sm = SoundManager.getInstance();
@@ -662,12 +701,13 @@ public class TileMap {
                 lt.draw(g2, offsetX, offsetY);
         }
 
-        // draw Heart sprite
-
-        g2.drawImage(heart.getImage(),
-                (int) Math.round((double) heart.getX()) + offsetX,
-                (int) Math.round((double) heart.getY()) + offsetY, 40, 40,
-                null);
+        // draw Heart sprite if riddle is solved
+        if (panel.isWordComplete()) {
+            g2.drawImage(heart.getImage(),
+                    (int) Math.round((double) heart.getX()) + offsetX,
+                    (int) Math.round((double) heart.getY()) + offsetY, 40, 40,
+                    null);
+        }
 
         // Restore original transform to avoid affecting UI or subsequent draw calls
         g2.setTransform(oldTransform);
@@ -735,18 +775,18 @@ public class TileMap {
         for (PendulumAxe axe : axes) {
             axe.update();
             if (axe.collidesWith(player)) {
-                player.setHealth(0); // Instant death from traps
+                player.takeDamage(50); // Traps deal 50 damage
             }
         }
         for (SpinningBlade blade : blades) {
             blade.update();
             if (blade.collidesWith(player)) {
-                player.setHealth(0); // Instant death from traps
+                player.takeDamage(50); // Traps deal 50 damage
             }
         }
         for (GroundSpike spike : spikes) {
             if (spike.collidesWith(player)) {
-                player.setHealth(0); // Instant death from traps
+                player.takeDamage(50); // Traps deal 50 damage
             }
         }
 
@@ -882,6 +922,7 @@ public class TileMap {
             if (coin.isDisappeared()) {
                 coinIt.remove(); // Safely remove collected coin
                 coinsCollected++;
+                player.heal(1); // Each coin heals 1
             }
         }
 
@@ -892,15 +933,17 @@ public class TileMap {
             return;
         }
 
-        if (heart.collidesWithPlayer()) {
-            panel.endLevel();
-            return;
-        }
+        if (panel.isWordComplete()) {
+            if (heart.collidesWithPlayer()) {
+                panel.endLevel();
+                return;
+            }
 
-        heart.update();
+            heart.update();
 
-        if (heart.collidesWithPlayer()) {
-            panel.endLevel();
+            if (heart.collidesWithPlayer()) {
+                panel.endLevel();
+            }
         }
 
     }

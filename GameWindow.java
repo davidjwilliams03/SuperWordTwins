@@ -50,6 +50,8 @@ public class GameWindow extends JFrame
 	private JPanel mainPanel;
 	private GamePanel gamePanel;
 
+	private java.util.Set<Character> guessedLetters = new java.util.HashSet<>();
+
 	private static final boolean[] keys = new boolean[1024];
 
 	public static boolean isKeyPressed(int keyCode) {
@@ -302,20 +304,31 @@ public class GameWindow extends JFrame
 		progressTF.setText(progress + "%");
 	}
 
+	public void resetGuessedLetters() {
+		guessedLetters.clear();
+	}
+
 	public int updateAns(char c){
+		guessedLetters.add(c);
 		char[] answer = gamePanel.getAnswer().toCharArray();
-		String updated= "";
+		StringBuilder updated = new StringBuilder();
 		int count = 0; 
+		
 		for (int i = 0; i < answer.length; i++){
-			if(c == answer[i]){
-				updated = updated + c + " ";
-				count = count + 1;
-			}
-			else{
-				updated = updated + "_ " ;
+			char current = answer[i];
+			if (current == ' ') {
+				updated.append("  "); // Double space for visual gap
+			} else if (guessedLetters.contains(current)) {
+				updated.append(current).append(" ");
+				// Only return the count for the NEWLY found letters this turn
+				if (current == c) {
+					count++;
+				}
+			} else {
+				updated.append("_ ");
 			}
 		}
-		answerTF.setText(updated);
+		answerTF.setText(updated.toString().trim());
 		return count;
 	}
 

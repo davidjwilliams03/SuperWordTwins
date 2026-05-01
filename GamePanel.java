@@ -119,9 +119,15 @@ public class GamePanel extends JPanel
 	public void correctGuess(char c){
 		guessedChar = c;
 		numGuessesCorrect += window.updateAns(c);
-		if(numGuessesCorrect == getAnswer().length()){
+		// Count length without spaces for completion check
+		int targetLength = getAnswer().replace(" ", "").length();
+		if(numGuessesCorrect >= targetLength){
 			wordComplete = true;
 		}
+	}
+
+	public boolean isWordComplete() {
+		return wordComplete;
 	}
 
 	public char getCorrectGuessChar(){
@@ -321,6 +327,9 @@ public class GamePanel extends JPanel
 			soundManager.playSound ("background", true);
 
 			gameOver = false;
+			wordComplete = false;
+			numGuessesCorrect = 0;
+			if (window != null) window.resetGuessedLetters();
 
 			tileManager = new TileMapManager (this);
 

@@ -17,6 +17,8 @@ public class MysteryBox{
     private Player player;
     private Random random;
 
+    private SoundManager sm;
+
     public MysteryBox(int x, int y, Player player){
         this.x = x;
         this.y = y;
@@ -43,6 +45,8 @@ public class MysteryBox{
         slowed = false;
         tinted = false;
         enlarged = false;
+
+        sm = SoundManager.getInstance();
     }
 
     public void update(){
@@ -91,6 +95,7 @@ public class MysteryBox{
         box.setRGB(0, 0,imw, imh, pix, 0, imw);
         m.disappeared = true;
         //m.animation.stop();
+        sm.playSound("box", false);
     }
 
     public boolean isDisappeared(){
@@ -148,8 +153,6 @@ public class MysteryBox{
     }
 
     public void enlargePlayer(int time){
-        player.setWidth(player.getWidth()*10);
-        player.setHeight(player.getHeight()*10);
         duration = time;
         timer = 0;
         enlarged = true;

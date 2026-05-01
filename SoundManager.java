@@ -31,7 +31,7 @@ public class SoundManager {				// a Singleton class
 		clip = loadClip("sounds/BirdSound.wav");
 		clips.put("birdSound", clip);		// played for bird-flying animation
 
-		clip = loadClip("sounds/epicBackground.wav");
+		clip = loadClip("sounds/BatmanCropped.wav");
 		clips.put("background", clip);	//background music
 		clip = loadClip("sounds/boxeffect1.wav");
 		clips.put("boxeffect1", clip);

@@ -10,6 +10,9 @@ public class LetterTile{
     private int x, y, width, height, alpha, tint;
 
     private boolean captured, disappeared, tinted;
+    private boolean correct;
+
+    private SoundManager sm;
 
     public LetterTile(BufferedImage tile, char letter, Player player){
         this.tile = tile;
@@ -27,6 +30,8 @@ public class LetterTile{
 
         //width = tile.getWidth();
         //height = tile.getHeight();
+
+        sm = SoundManager.getInstance();
 
     }
 
@@ -56,8 +61,10 @@ public class LetterTile{
 
     public boolean isInAnswer(char[] ans){
         for(int i = 0; i < ans.length; i++){
-            if(letter == ans[i])
-                return true;
+            if(letter == ans[i]){
+                correct = true;
+                return true;}
+                
         }
         return false;
     }

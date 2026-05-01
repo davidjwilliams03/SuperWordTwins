@@ -56,6 +56,7 @@ public class Coin {
         disappeared = false;
         //sm = new SoundManager();
         //effect = "";
+        sm = SoundManager.getInstance();
     }
 
 
@@ -127,7 +128,7 @@ public class Coin {
 
         boolean collision = collidesWithPlayer();
         if(collision&& !disappeared){
-            //sm.playClip("star");
+            sm.playSound("coin", false);
             disappearCoin(this);
         }
         

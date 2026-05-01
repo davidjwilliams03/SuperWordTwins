@@ -354,6 +354,7 @@ public class GamePanel extends JPanel
 			}
 			image = new BufferedImage(getWidth(), getHeight(), BufferedImage.TYPE_INT_RGB);
 
+			soundManager.playSound ("loadIn", false);
 			createGameEntities();
 
 			gameThread = new Thread(this);

@@ -64,6 +64,8 @@ public class TileMap {
     private String answer;
     private char[] answerLetters;
 
+    private SoundManager sm;
+
     /**
         Creates a new TileMap with the specified width and
         height (in number of tiles) of the map.
@@ -194,6 +196,8 @@ public class TileMap {
         player.setY(y);
 
 	    System.out.println("Player coordinates: " + x + "," + y);
+
+        sm = SoundManager.getInstance();
 
     }
 
@@ -690,11 +694,13 @@ public class TileMap {
                 if(c == l){
                     lt.setCaptured(true);
                     panel.correctGuess(c);
+                    sm.playSound("correct", false);
                     break;
                 }
             }
             if(!lt.isCaptured()){
                 player.takeDamage(10);
+                sm.playSound("wrong", false);
             }
             lit.remove();
         }

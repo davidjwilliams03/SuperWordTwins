@@ -34,7 +34,7 @@ public class Player {
    private Animation stanceRightAnim, stanceLeftAnim;
    private Animation runRightAnim, runLeftAnim;
    private Animation jumpRightAnim, jumpLeftAnim;
-   private Animation climbAnim;
+   private Animation climbRightAnim, climbLeftAnim;
    private Animation crouchRightAnim, crouchLeftAnim;
    private Animation introAnim, deadAnim;
    private Animation punchRightAnim, punchLeftAnim;
@@ -97,7 +97,8 @@ public class Player {
       jumpRightAnim = loadAnim("images/batmantwin/jump/sr", 1, 10, false, 80, false);
       jumpLeftAnim = loadAnim("images/batmantwin/jump/sl", 1, 10, false, 80, false);
       
-      climbAnim = loadAnim("images/batmantwin/climb/c", 1, 6, false, 150, false);
+      climbRightAnim = loadAnim("images/batmantwin/climb/c", 1, 6, false, 150, false);
+      climbLeftAnim = loadAnim("images/batmantwin/climb/c", 1, 6, false, 150, true);
       
       crouchRightAnim = loadAnim("images/batmantwin/crouch/c", 1, 6, false, 80, false);
       crouchLeftAnim = loadAnim("images/batmantwin/crouch/c", 1, 6, false, 80, true);
@@ -518,7 +519,8 @@ public class Player {
       
       // Update Animation States for Movement
       if (isClimbing) {
-         if (currAnim != climbAnim) { currAnim = climbAnim; currAnim.start(); }
+         Animation cAnim = (climbingSide == 1) ? climbRightAnim : climbLeftAnim;
+         if (currAnim != cAnim) { currAnim = cAnim; currAnim.start(); }
       } else if (jumping || inAir) {
          Animation jAnim = facingRight ? jumpRightAnim : jumpLeftAnim;
          if (currAnim != jAnim) { currAnim = jAnim; currAnim.start(); }

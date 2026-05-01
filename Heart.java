@@ -23,6 +23,7 @@ public class Heart {
 	private int x;
 	private int y;
 	private int dx;
+	private int startX;
 
 	private Player player;
 
@@ -34,17 +35,14 @@ public class Heart {
 	boolean originalImage, grayImage;
 
 
-	public Heart (JPanel panel, Player player) {
+	public Heart (JPanel panel, Player player, int startX, int startY) {
 		this.panel = panel;
-		//Graphics g = window.getGraphics ();
-		//g2 = (Graphics2D) g;
-
 		dimension = panel.getSize();
-		Random random = new Random();
-		//x = 4174;	
-		x = 4128;
-		y = 270;
-		dx = 2;
+		
+		this.startX = startX;
+		this.x = startX;
+		this.y = startY;
+		this.dx = 2;
 
 		this.player = player;
 
@@ -86,7 +84,7 @@ public class Heart {
 	public void update() {				
 		x = x + dx;
 
-		if (x < 4064 || x > 4184)
+		if (x < startX - 60 || x > startX + 60)
 			dx = dx * -1;
 
 	}

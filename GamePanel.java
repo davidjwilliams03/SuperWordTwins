@@ -191,31 +191,16 @@ public class GamePanel extends JPanel
 
 		if (levelChange) {
 			levelChange = false;
-			tileManager = new TileMapManager (this);
-
-			try {
-				String filename = (level == 1) ? "maps/map_export.txt" : "maps/map" + level + ".txt";
-				tileMap = tileManager.loadMap(filename) ;
-				int w, h;
-				w = tileMap.getWidth();
-				h = tileMap.getHeight();
-				System.out.println ("Changing level to Level " + level);
-				System.out.println ("Width of tilemap " + w);
-				System.out.println ("Height of tilemap " + h);
-			}
-			catch (Exception e) {		// no more maps: terminate game
-				gameOver = true;
-				System.out.println(e);
-				System.out.println("Game Over"); 
-				return;
-/*
-				System.exit(0);
-*/
-			}
-
-			createGameEntities();
-			return;
-				
+			
+            if (level == 2) {
+                javax.swing.JOptionPane.showMessageDialog(this, "Congrats! Move to level 2.");
+                tileMap.setupLevel(2);
+                return;
+            } else if (level > 2) {
+                javax.swing.JOptionPane.showMessageDialog(this, "You Win! Game Over.");
+                setGameOver();
+                return;
+            }
 		}
 
 		if (!isPaused && isAnimShown)

@@ -21,8 +21,12 @@ public class Player {
 
    private int width;			// scaled width of player
    private int height;			// scaled height of player
-   Graphics2D g2;
    private Dimension dimension;
+
+   private int minX = 0;
+   private int maxX = Integer.MAX_VALUE;
+   private int startPosX = 100;
+   private int startPosY = 100;
 
    private Image playerImage, playerLeftImage, playerRightImage;
 
@@ -68,6 +72,16 @@ public class Player {
    public boolean isClimbing() { return isClimbing; }
    public int getClimbingSide() { return climbingSide; }
    public boolean isCeilingWalking() { return isCeilingWalking; }
+
+   public void setBounds(int minX, int maxX) {
+      this.minX = minX;
+      this.maxX = maxX;
+   }
+
+   public void setStartPosition(int x, int y) {
+      this.startPosX = x;
+      this.startPosY = y;
+   }
 
    public int getHealth() { return health; }
    public void setHealth(int health) { 
@@ -251,8 +265,8 @@ public class Player {
       if (direction == 1) {		// move left
           playerImage = playerLeftImage;
           int newX = x - DX;
-	  if (newX < 0) {
-		x = 0;
+	  if (newX < minX) {
+		x = minX;
 		return;
 	  }
 
@@ -274,9 +288,10 @@ public class Player {
       	  int playerWidth = width;
           int newX = x + DX;
          int tileMapWidth = tileMap.getWidthPixels();
+         int limit = Math.min(tileMapWidth, maxX);
 
-         if (newX + width >= tileMapWidth) {
-            x = tileMapWidth - width;
+         if (newX + width >= limit) {
+            x = limit - width;
             return;
          }
 
@@ -405,7 +420,7 @@ public class Player {
 
       // RESET LOGIC (Death Plane)
       if (y > tileMap.getHeightPixels() + 200) {
-         x = 100; y = 100; // Reset to start
+         x = startPosX; y = startPosY; // Reset to level start
          fall();
       }
 

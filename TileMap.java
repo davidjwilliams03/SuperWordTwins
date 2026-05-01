@@ -181,24 +181,27 @@ public class TileMap {
         answerLetters = answer.toCharArray();
         //System.out.println("Answer Letters: " + answerLetters.length);
 
-	    heart = new Heart (panel, player);
-		
         sprites = new LinkedList();
-
-	    int x, y;
-        // Adjusted starting coordinates to suit the 32x32 grid
-	    x = 19368;
-	    y = 2213;
-
-	    //x = 1000;					// position player in 'random' location
-
-        player.setX(x);
-        player.setY(y);
-
-	    System.out.println("Player coordinates: " + x + "," + y);
-
         sm = SoundManager.getInstance();
+        setupLevel(1);
+    }
 
+    public void setupLevel(int level) {
+        if (level == 1) {
+            player.setX(100);
+            player.setY(100);
+            player.setStartPosition(100, 100);
+            player.setBounds(0, 23092);
+            heart = new Heart(panel, player, 22408, 165);
+            System.out.println("Level 1 initialized");
+        } else if (level == 2) {
+            player.setX(23056);
+            player.setY(165);
+            player.setStartPosition(23056, 165);
+            player.setBounds(22924, getWidthPixels());
+            heart = new Heart(panel, player, 43800, 4517);
+            System.out.println("Level 2 initialized");
+        }
     }
 
 
@@ -383,7 +386,9 @@ public class TileMap {
 
         // Clear the visible area to prevent "ghosting" or duplicated pixels 
         // when the camera moves outside the map boundaries.
-        g2.setColor(Color.BLACK); 
+        // Game Programming Trick: Change the clear color to exactly match the top pixel 
+        // of your sky image so it flawlessly blends infinitely upwards.
+        g2.setColor(new Color(0, 10, 27)); 
         g2.fillRect(0, 0, virtualWidth, virtualHeight);
 
 	// draw the background first
@@ -391,7 +396,10 @@ public class TileMap {
         if (skyBackground != null || cityBackground != null) {
             if (skyBackground != null) {
                 int skyOffsetX = (int) (offsetX * 0.2); 
-                g2.drawImage(skyBackground, skyOffsetX, offsetY, getWidthPixels(), getHeightPixels(), null);
+                // Game Programming Trick: Anchor the sky to the top of the screen 
+                // if the camera looks above the map (offsetY > 0)
+                int skyOffsetY = Math.min(offsetY, 0);
+                g2.drawImage(skyBackground, skyOffsetX, skyOffsetY, getWidthPixels(), getHeightPixels(), null);
             }
             if (cityBackground != null) {
                 int cityOffsetX = (int) (offsetX * 0.5); 

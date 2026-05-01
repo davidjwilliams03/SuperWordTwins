@@ -150,26 +150,28 @@ public class TileMapManager {
 
 
     public void loadTileImages() {
-        // keep looking for tile A,B,C, etc. this makes it
-        // easy to drop new tiles in the images/ folder
-
-	File file;
-
-	System.out.println("loadTileImages called.");
-
+        System.out.println("loadTileImages called.");
         tiles = new ArrayList<BufferedImage>();
-        int i = 1;
-        while (true) {
-            String filename = String.format("images/1 Tiles/Tile_%02d.png", i);
-	    file = new File(filename);
-            if (!file.exists()) {
-                break;
+        
+        String filename = "images/1 Tiles/Tileset.png";
+        File file = new File(filename);
+        if (file.exists()) {
+            System.out.println("Image file opened: " + filename);
+            BufferedImage tilesetImage = ImageManager.loadBufferedImage(filename);
+            
+            int cols = 8;
+            int rows = 8;
+            int tileWidth = tilesetImage.getWidth() / cols;
+            int tileHeight = tilesetImage.getHeight() / rows;
+            
+            for (int y = 0; y < rows; y++) {
+                for (int x = 0; x < cols; x++) {
+                    BufferedImage tileImage = tilesetImage.getSubimage(x * tileWidth, y * tileHeight, tileWidth, tileHeight);
+                    tiles.add(tileImage);
+                }
             }
-	    else
-		System.out.println("Image file opened: " + filename);
-		BufferedImage tileImage = ImageManager.loadBufferedImage(filename);
-		tiles.add(tileImage);
-            i++;
+        } else {
+            System.out.println("Tileset not found!");
         }
     }
 

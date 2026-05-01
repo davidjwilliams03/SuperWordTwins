@@ -445,29 +445,31 @@ public class TileMap {
         int pW = player.getWidth();
         int pH = player.getHeight();
 
-        if (player.isClimbing()) {
-            // Save current transform
-            AffineTransform old = g2.getTransform();
+        Image pImg = player.getImage();
+        if (pImg != null) {
+            double scale = 0.675; // Scale down the massive new animation frames
+            int imgW = pImg.getWidth(null);
+            int imgH = pImg.getHeight(null);
+            int drawW = (int)(imgW * scale);
+            int drawH = (int)(imgH * scale);
             
-            // Rotate 90 degrees toward the wall around the player's center
-            double rotation = (player.getClimbingSide() == -1) ? Math.toRadians(90) : Math.toRadians(-90);
-            g2.rotate(rotation, pX + pW / 2, pY + pH / 2);
-            
-            g2.drawImage(player.getImage(), pX, pY, pW, pH, null);
-            
-            // Restore transform
-            g2.setTransform(old);
-        } else if (player.isCeilingWalking()) {
-            // Invert player 180 degrees for ceiling walking
-            AffineTransform old = g2.getTransform();
-            
-            g2.rotate(Math.toRadians(180), pX + pW / 2, pY + pH / 2);
-            g2.drawImage(player.getImage(), pX, pY, pW, pH, null);
-            
-            // Restore transform
-            g2.setTransform(old);
-        } else {
-            g2.drawImage(player.getImage(), pX, pY, pW, pH, null);
+            // Anchor to the bottom center of the physics hitbox
+            // Nudge it slightly down by adding + 5 to the drawY to make sure feet touch the ground
+            int drawX = pX + (pW / 2) - (drawW / 2);
+            int drawY = pY + pH - drawH + 5;
+
+            if (player.isCeilingWalking()) {
+                // Invert player 180 degrees for ceiling walking
+                AffineTransform old = g2.getTransform();
+                
+                g2.rotate(Math.toRadians(180), pX + pW / 2, pY + pH / 2);
+                g2.drawImage(pImg, drawX, drawY, drawW, drawH, null);
+                
+                // Restore transform
+                g2.setTransform(old);
+            } else {
+                g2.drawImage(pImg, drawX, drawY, drawW, drawH, null);
+            }
         }
 
         for (Enemy enemy : enemies) {
@@ -726,7 +728,9 @@ public class TileMap {
         }
 
         if (player.getHealth() <= 0) {
-            panel.setGameOver();
+            if (player.isDeathFinished()) {
+                panel.setGameOver();
+            }
             return;
         }
 

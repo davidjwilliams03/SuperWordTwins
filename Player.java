@@ -2,6 +2,8 @@ import java.awt.Dimension;
 import java.awt.Graphics2D;
 import java.awt.Image;
 import java.awt.Point;
+import java.awt.image.BufferedImage;
+import java.awt.geom.AffineTransform;
 import java.awt.event.KeyEvent;
 import java.awt.geom.Rectangle2D;
 import javax.swing.JPanel;
@@ -28,7 +30,24 @@ public class Player {
    private int startPosX = 100;
    private int startPosY = 100;
 
-   private Image playerImage, playerLeftImage, playerRightImage;
+
+   private Animation stanceRightAnim, stanceLeftAnim;
+   private Animation runRightAnim, runLeftAnim;
+   private Animation jumpRightAnim, jumpLeftAnim;
+   private Animation climbAnim;
+   private Animation crouchRightAnim, crouchLeftAnim;
+   private Animation introAnim, deadAnim;
+   private Animation punchRightAnim, punchLeftAnim;
+   private Animation kickRightAnim, kickLeftAnim;
+   
+   private Animation currAnim;
+   
+   private boolean facingRight = true;
+   private boolean isIntro = true;
+   private boolean isDead = false;
+   private boolean isCrouching = false;
+   private boolean isAttacking = false;
+
 
    private boolean jumping;
    private int timeElapsed;
@@ -61,12 +80,67 @@ public class Player {
       inAir = false;
       wasOnGround = true;
 
-      playerLeftImage = ImageManager.loadImage("images/playerLeft.gif");
-      playerRightImage = ImageManager.loadImage("images/playerRight.gif");
-      playerImage = playerRightImage;
+
+      isIntro = true;
+      facingRight = true;
+      isDead = false;
+      isAttacking = false;
+      isCrouching = false;
+
+      // Load Animations
+      stanceRightAnim = loadAnim("images/batmantwin/stance/s", 1, 7, true, 100, false);
+      stanceLeftAnim = loadAnim("images/batmantwin/stance/s", 1, 7, true, 100, true);
       
-      this.width = (int)(playerImage.getWidth(null) * 1.5);
-      this.height = (int)(playerImage.getHeight(null) * 1.5);
+      runRightAnim = loadAnim("images/batmantwin/run/r", 1, 8, true, 50, false);
+      runLeftAnim = loadAnim("images/batmantwin/run/l", 1, 8, true, 50, false);
+      
+      jumpRightAnim = loadAnim("images/batmantwin/jump/sr", 1, 10, false, 80, false);
+      jumpLeftAnim = loadAnim("images/batmantwin/jump/sl", 1, 10, false, 80, false);
+      
+      climbAnim = loadAnim("images/batmantwin/climb/c", 1, 6, false, 150, false);
+      
+      crouchRightAnim = loadAnim("images/batmantwin/crouch/c", 1, 6, false, 80, false);
+      crouchLeftAnim = loadAnim("images/batmantwin/crouch/c", 1, 6, false, 80, true);
+      
+      introAnim = loadAnim("images/batmantwin/intro/i", 1, 12, false, 150, false);
+      deadAnim = loadAnim("images/batmantwin/dead/d", 1, 15, false, 150, false);
+      
+      punchRightAnim = loadAnim("images/batmantwin/punch/p", 1, 5, false, 80, false);
+      punchLeftAnim = loadAnim("images/batmantwin/punch/p", 1, 5, false, 80, true);
+      
+      kickRightAnim = loadAnim("images/batmantwin/kick/k", 1, 4, false, 100, false);
+      kickLeftAnim = loadAnim("images/batmantwin/kick/k", 1, 4, false, 100, true);
+
+      currAnim = introAnim;
+      currAnim.start();
+
+      this.width = 54;
+      this.height = 96;
+
+   }
+
+
+   public boolean isDead() { return isDead; }
+   public boolean isDeathFinished() { return isDead && !deadAnim.isStillActive(); }
+
+   private BufferedImage flipImage(BufferedImage image) {
+      BufferedImage flipped = new BufferedImage(image.getWidth(), image.getHeight(), BufferedImage.TYPE_INT_ARGB);
+      Graphics2D g = flipped.createGraphics();
+      g.drawImage(image, image.getWidth(), 0, -image.getWidth(), image.getHeight(), null);
+      g.dispose();
+      return flipped;
+   }
+
+   private Animation loadAnim(String prefix, int start, int end, boolean loop, int duration, boolean flip) {
+      Animation anim = new Animation(loop);
+      for (int i = start; i <= end; i++) {
+         BufferedImage img = ImageManager.loadBufferedImage(prefix + i + ".png");
+         if (img != null) {
+            if (flip) img = flipImage(img);
+            anim.addFrame(img, duration);
+         }
+      }
+      return anim;
    }
 
    public boolean isClimbing() { return isClimbing; }
@@ -263,7 +337,7 @@ public class Player {
       }
       
       if (direction == 1) {		// move left
-          playerImage = playerLeftImage;
+          facingRight = false;
           int newX = x - DX;
 	  if (newX < minX) {
 		x = minX;
@@ -284,7 +358,7 @@ public class Player {
       }
       }
       else if (direction == 2) {		// move right
-          playerImage = playerRightImage;
+          facingRight = true;
       	  int playerWidth = width;
           int newX = x + DX;
          int tileMapWidth = tileMap.getWidthPixels();
@@ -368,17 +442,111 @@ public class Player {
 
    public void update () {
 
+
+      if (isIntro) {
+         currAnim.update();
+         if (!currAnim.isStillActive()) {
+            isIntro = false;
+            currAnim = facingRight ? stanceRightAnim : stanceLeftAnim;
+            currAnim.start();
+         }
+         return; // lock movement
+      }
+
+      if (health <= 0) {
+         if (!isDead) {
+            isDead = true;
+            currAnim = deadAnim;
+            currAnim.start();
+         }
+         currAnim.update();
+         return;
+      }
+
+      // Attack Logic
+      if (!isAttacking && !isClimbing && !isCrouching && !jumping && !inAir) {
+         if (GameWindow.isKeyPressed(KeyEvent.VK_Z)) {
+            isAttacking = true;
+            currAnim = facingRight ? punchRightAnim : punchLeftAnim;
+            currAnim.start();
+         } else if (GameWindow.isKeyPressed(KeyEvent.VK_X)) {
+            isAttacking = true;
+            currAnim = facingRight ? kickRightAnim : kickLeftAnim;
+            currAnim.start();
+         }
+      }
+
+      if (isAttacking) {
+         currAnim.update();
+         if (!currAnim.isStillActive()) {
+            isAttacking = false;
+            currAnim = facingRight ? stanceRightAnim : stanceLeftAnim;
+            currAnim.start();
+         }
+         // Do not return here if we want physics to apply while attacking, but returning locks horizontal movement which is usually desired for ground attacks.
+         return;
+      }
+
+      // Crouch Logic
+      boolean downPressed = GameWindow.isKeyPressed(KeyEvent.VK_DOWN);
+      if (!isClimbing && !jumping && !inAir && downPressed) {
+         if (!isCrouching) {
+            isCrouching = true;
+            y += 48; // shrink from the top down
+            height = 48;
+            currAnim = facingRight ? crouchRightAnim : crouchLeftAnim;
+            currAnim.start();
+         }
+      } else if (isCrouching) {
+         // Attempt to stand up
+         boolean canStand = true;
+         // Check if standing up would hit the ceiling
+         Point ceiling = collidesWithTileUp(x, y - 48);
+         if (ceiling != null) {
+            canStand = false;
+         }
+         
+         if (canStand) {
+            isCrouching = false;
+            y -= 48;
+            height = 96;
+         } else {
+            // Keep crouching
+            isCrouching = true;
+         }
+      }
+      
+      // Update Animation States for Movement
+      if (isClimbing) {
+         if (currAnim != climbAnim) { currAnim = climbAnim; currAnim.start(); }
+      } else if (jumping || inAir) {
+         Animation jAnim = facingRight ? jumpRightAnim : jumpLeftAnim;
+         if (currAnim != jAnim) { currAnim = jAnim; currAnim.start(); }
+      } else if (isCrouching) {
+         Animation cAnim = facingRight ? crouchRightAnim : crouchLeftAnim;
+         if (currAnim != cAnim) { currAnim = cAnim; currAnim.start(); }
+      } else if (GameWindow.isKeyPressed(KeyEvent.VK_LEFT)) {
+         if (currAnim != runLeftAnim) { currAnim = runLeftAnim; currAnim.start(); }
+      } else if (GameWindow.isKeyPressed(KeyEvent.VK_RIGHT)) {
+         if (currAnim != runRightAnim) { currAnim = runRightAnim; currAnim.start(); }
+      } else {
+         Animation sAnim = facingRight ? stanceRightAnim : stanceLeftAnim;
+         if (currAnim != sAnim) { currAnim = sAnim; currAnim.start(); }
+      }
+
+      currAnim.update();
+
       // Entrance check: Trigger if holding Up while against a wall (checked every frame)
       if (!isClimbing && GameWindow.isKeyPressed(KeyEvent.VK_UP)) {
          if (isTouchingWall(-1)) {
             isClimbing = true;
             climbingSide = -1;
-            playerImage = playerLeftImage;
+            facingRight = false;
             jumping = inAir = goingUp = goingDown = false;
          } else if (isTouchingWall(1)) {
             isClimbing = true;
             climbingSide = 1;
-            playerImage = playerRightImage;
+            facingRight = true;
             jumping = inAir = goingUp = goingDown = false;
          }
       }
@@ -627,9 +795,14 @@ public class Player {
       return height;
    }
 
+
    public Image getImage() {
-      return playerImage;
+      if (currAnim != null && currAnim.getImage() != null) {
+         return currAnim.getImage();
+      }
+      return null;
    }
+
 
 
    public Rectangle2D.Double getBoundingRectangle() {

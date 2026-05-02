@@ -74,8 +74,8 @@ public class GamePanel extends JPanel
 		// Initialize buffer to match preferred size (1300x700)
 		image = new BufferedImage(1300, 700, BufferedImage.TYPE_INT_RGB);
 
-		level = 2;
-		clueIndex = 1; // Start with second riddle for level 2
+		level = 1;
+		clueIndex = 0; // Start with first riddle for level 1
 		levelChange = false;
 
 		numGuessesCorrect = 0;
@@ -224,6 +224,7 @@ public class GamePanel extends JPanel
 				if (window != null) {
 					window.resetGuessedLetters();
 					window.updateClue(getClue());
+					window.showEmptyAnswer();
 				}
 
 				tileMap.setupLevel(2);

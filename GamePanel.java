@@ -75,7 +75,8 @@ public class GamePanel extends JPanel
 		// Initialize buffer to match preferred size (1300x700)
 		image = new BufferedImage (1300, 700, BufferedImage.TYPE_INT_RGB);
 
-		level = 1;
+		level = 2;
+		clueIndex = 1; // Start with second riddle for level 2
 		levelChange = false;
 
 		numGuessesCorrect = 0;
@@ -104,12 +105,23 @@ public class GamePanel extends JPanel
     	}
 	}
 
+	public String getClue() {
+		if (riddle != null && clueIndex >= 0 && clueIndex < riddle.size()) {
+			return riddle.get(clueIndex);
+		}
+		return "";
+	}
+
 	public String chooseClue() {
 		if (riddle != null && !riddle.isEmpty()) {
 			clueIndex = random.nextInt(riddle.size());
 			clue = riddle.get(clueIndex);
 		}
 		return clue;
+	}
+
+	public int getLevel() {
+		return level;
 	}
 
 	public String getAnswer() {
@@ -200,6 +212,16 @@ public class GamePanel extends JPanel
 			
             if (level == 2) {
                 javax.swing.JOptionPane.showMessageDialog(this, "Congrats! Move to level 2.");
+                
+                // Move to next riddle
+                clueIndex++;
+                wordComplete = false;
+                numGuessesCorrect = 0;
+                if (window != null) {
+                    window.resetGuessedLetters();
+                    window.updateClue(getClue());
+                }
+                
                 tileMap.setupLevel(2);
                 return;
             } else if (level > 2) {
@@ -329,7 +351,11 @@ public class GamePanel extends JPanel
 			gameOver = false;
 			wordComplete = false;
 			numGuessesCorrect = 0;
-			if (window != null) window.resetGuessedLetters();
+			if (window != null) {
+				window.resetGuessedLetters();
+				window.updateClue(getClue());
+				window.showEmptyAnswer();
+			}
 
 			tileManager = new TileMapManager (this);
 

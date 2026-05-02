@@ -1,5 +1,7 @@
 import java.awt.Graphics2D;
 import java.awt.Image;
+import java.awt.geom.AffineTransform;
+import java.awt.geom.Rectangle2D;
 
 public class PendulumAxe {
 
@@ -30,39 +32,35 @@ public class PendulumAxe {
     }
 
     public void draw(Graphics2D g2, int offsetX, int offsetY) {
-
-        int axeX = pivotX + (int)(length * Math.sin(angle));
-        int axeY = pivotY + (int)(length * Math.cos(angle));
-
-        // Draw chain (line)
-//        g2.drawLine(
-//           pivotX + offsetX, pivotY + offsetY,
-//            axeX + offsetX, axeY + offsetY
-//        );
-
-        // Rotate axe around its center
-        g2.rotate(-angle, axeX + offsetX + axeWidth/2, axeY + offsetY + axeHeight/2);
-
-        g2.drawImage(axeImage,
-            axeX + offsetX,
-            axeY + offsetY,
-            axeWidth,
-            axeHeight,
-            null
-        );
-
-        // Reset rotation
-        g2.rotate(angle, axeX + offsetX + axeWidth/2, axeY + offsetY + axeHeight/2);
+        // The axe rotates around the pivotX, pivotY point
+        // Save transform
+        AffineTransform old = g2.getTransform();
+        
+        // Move to pivot and rotate
+        g2.translate(pivotX + offsetX, pivotY + offsetY);
+        g2.rotate(-angle);
+        
+        // Draw image offset by 'length' to simulate a chain/handle
+        // The handle starts at 'length' and the blade is at 'length + axeHeight'
+        g2.drawImage(axeImage, -axeWidth/2, length, axeWidth, axeHeight, null);
+        
+        // Restore transform
+        g2.setTransform(old);
     }
 
     public boolean collidesWith(Player player) {
-        int axeX = pivotX + (int)(length * Math.sin(angle));
-        int axeY = pivotY + (int)(length * Math.cos(angle));
-
-        // Narrow the hitbox to center on the blade at the bottom of the image
-        // The previous hitbox was too large (almost the whole 512x512 area)
-        return player.getBoundingRectangle().intersects(
-            axeX + 190, axeY + 380, 140, 110
-        );
+        // Calculate the actual world position of the blade
+        // The blade center is roughly in the middle of the axe sprite (axeHeight/2)
+        // plus the length of the pendulum
+        double bladeDist = length + (axeHeight / 2) + 150; // Adjusted for this specific sprite
+        
+        int bX = pivotX + (int)(bladeDist * Math.sin(angle));
+        int bY = pivotY + (int)(bladeDist * Math.cos(angle));
+        
+        // Create a collision box around the calculated blade center
+        // Larger area (168x132)
+        Rectangle2D.Double bladeBox = new Rectangle2D.Double(bX - 84, bY - 66, 168, 132);
+        
+        return player.getBoundingRectangle().intersects(bladeBox);
     }
 }

@@ -304,6 +304,20 @@ public class GameWindow extends JFrame
 		progressTF.setText(progress + "%");
 	}
 
+	public void updateClue(String clue) {
+		clueTF.setText(clue);
+	}
+
+	public void showEmptyAnswer() {
+		char[] answer = gamePanel.getAnswer().toCharArray();
+		StringBuilder updated = new StringBuilder();
+		for (char current : answer) {
+			if (current == ' ') updated.append("  ");
+			else updated.append("_ ");
+		}
+		answerTF.setText(updated.toString().trim());
+	}
+
 	public void resetGuessedLetters() {
 		guessedLetters.clear();
 	}

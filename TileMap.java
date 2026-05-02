@@ -109,205 +109,7 @@ public class TileMap {
         lts = new LinkedList<>();
         tileimgs = new LinkedList<>();
 
-        axes.add(new PendulumAxe(11560, 5015, 200, ImageManager.loadImage("images/battle_axe.png")));
-        axes.add(new PendulumAxe(6444, 5675, 200, ImageManager.loadImage("images/battle_axe.png")));
-
-        blades.add(new SpinningBlade(17642, 4994, ImageManager.loadImage("images/spinning_blade.png")));
-        blades.add(new SpinningBlade(17642, 5519, ImageManager.loadImage("images/spinning_blade.png")));
-        blades.add(new SpinningBlade(11716, 7500, ImageManager.loadImage("images/spinning_blade.png")));
-        blades.add(new SpinningBlade(11716, 6800, ImageManager.loadImage("images/spinning_blade.png")));
-
-        spikes.add(new GroundSpike(14720, 4680, ImageManager.loadImage("images/groundspikes.png")));
-        spikes.add(new GroundSpike(14785, 4680, ImageManager.loadImage("images/groundspikes.png")));
-        spikes.add(new GroundSpike(14850, 4680, ImageManager.loadImage("images/groundspikes.png")));
-
-        spikes.add(new GroundSpike(17664, 6425, ImageManager.loadImage("images/groundspikes.png")));
-        spikes.add(new GroundSpike(6600, 7690, ImageManager.loadImage("images/groundspikes.png")));
-        spikes.add(new GroundSpike(6700, 7690, ImageManager.loadImage("images/groundspikes.png")));
-
-        // Add a few enemies to the map near the starting area
-        // enemies.add(new Goon(17200, 7141, ImageManager.loadImage("images/goon.png"),
-        // this));
-        // enemies.add(new Goon(17500, 7141, ImageManager.loadImage("images/goon.png"),
-        // this));
-
-        mboxes.add(new MysteryBox(14720, 4300, player));
-        mboxes.add(new MysteryBox(6500, 6333, player));
-        mboxes.add(new MysteryBox(11768, 5629, player));
-        // mboxes.add(new MysteryBox(14900, 4300, player));
-
-        // code for coin placement
-        // level 1
-        int startx = 14500;
-        int starty = 4300;
-        for (int i = 0; i < 1; i++) {
-            coins.add(new Coin(startx + (i * 10), starty, player));
-        }
         coinsCollected = 0;
-
-        for (int i = 0; i < 4; i++) {
-            coins.add(new Coin(1216 + (i * 60), 6245, player));
-        }
-
-        for (int i = 0; i < 8; i++) {
-            coins.add(new Coin(1788 + (i * 60), 6053, player));
-        }
-
-        for (int i = 0; i < 7; i++) {
-            coins.add(new Coin(4744 + (i * 60), 5769, player));
-        }
-
-        // Set 1: x=4132, y=7230, num=1
-        for (int i = 0; i < 1; i++) {
-            coins.add(new Coin(4132 + (i * 60), 7230, player));
-        }
-
-        // Set 2: x=5812, y=7205, num=6
-        for (int i = 0; i < 6; i++) {
-            coins.add(new Coin(5812 + (i * 60), 7205, player));
-        }
-
-        // Set 3: x=7248, y=7269, num=3
-        for (int i = 0; i < 3; i++) {
-            coins.add(new Coin(7248 + (i * 60), 7269, player));
-        }
-
-        // Set 4: x=7576, y=8549, num=3
-        for (int i = 0; i < 3; i++) {
-            coins.add(new Coin(7576 + (i * 60), 8549, player));
-        }
-
-        // Set 5: x=7576, y=8128, num=30
-        for (int i = 0; i < 30; i++) {
-            coins.add(new Coin(7576 + (i * 60), 8128, player));
-        }
-
-        // Set 6: x=8080, y=8293, num=3
-        for (int i = 0; i < 3; i++) {
-            coins.add(new Coin(8080 + (i * 60), 8293, player));
-        }
-
-        // Set 7: x=8060, y=8485, num=3
-        for (int i = 0; i < 3; i++) {
-            coins.add(new Coin(8060 + (i * 60), 8485, player));
-        }
-
-        // Set 8: x=8996, y=8357, num=3
-        for (int i = 0; i < 3; i++) {
-            coins.add(new Coin(8996 + (i * 60), 8357, player));
-        }
-
-        // Set 9: x=5144, y=6501, num=6
-        for (int i = 0; i < 6; i++) {
-            coins.add(new Coin(5144 + (i * 60), 6501, player));
-        }
-
-        // Set 10: x=10304, y=8549, num=4
-        for (int i = 0; i < 4; i++) {
-            coins.add(new Coin(10304 + (i * 60), 8549, player));
-        }
-
-        // Set 11: x=10704, y=8421, num=1
-        for (int i = 0; i < 1; i++) {
-            coins.add(new Coin(10704 + (i * 60), 8421, player));
-        }
-
-        // Set 12: x=10020, y=7589, num=10
-        for (int i = 0; i < 10; i++) {
-            coins.add(new Coin(10020, 7589 + (i * 60), player));
-        }
-
-        // Set 13: x=6044, y=6285, num=4
-        for (int i = 0; i < 4; i++) {
-            coins.add(new Coin(6044 + (i * 60), 6285, player));
-        }
-
-        // Set 14: x=7140, y=6245, num=3
-        for (int i = 0; i < 3; i++) {
-            coins.add(new Coin(7140 + (i * 60), 6245, player));
-        }
-
-        // Set 15: x=7392, y=6053, num=3
-        for (int i = 0; i < 3; i++) {
-            coins.add(new Coin(7392 + (i * 60), 6053, player));
-        }
-
-        // Set 16: x=9344, y=6181, num=2
-        for (int i = 0; i < 2; i++) {
-            coins.add(new Coin(9344 + (i * 60), 6181, player));
-        }
-
-        // Set 17: x=9960, y=5925, num=7
-        for (int i = 0; i < 7; i++) {
-            coins.add(new Coin(9960 + (i * 60), 5925, player));
-        }
-
-        // Set 18: x=10448, y=6437, num=2
-        for (int i = 0; i < 2; i++) {
-            coins.add(new Coin(10448 + (i * 60), 6437, player));
-        }
-
-        // Set 19: x=10776, y=7525, num=2
-        for (int i = 0; i < 2; i++) {
-            coins.add(new Coin(10776 + (i * 60), 7525, player));
-        }
-
-        // Set 20: x=11068, y=6373, num=2
-        for (int i = 0; i < 2; i++) {
-            coins.add(new Coin(11068 + (i * 60), 6373, player));
-        }
-
-        // Set 21: x=12696, y=5221, num=8
-        for (int i = 0; i < 8; i++) {
-            coins.add(new Coin(12696 + (i * 60), 5221, player));
-        }
-
-        // Set 22: x=15924, y=5925, num=8
-        for (int i = 0; i < 8; i++) {
-            coins.add(new Coin(15924 + (i * 60), 5925, player));
-        }
-
-        // Set 23: x=14988, y=6317, num=25
-        for (int i = 0; i < 25; i++) {
-            coins.add(new Coin(14988 + (i * 60), 6317, player));
-        }
-
-        // Set 24: x=15272, y=6912, num=8
-        for (int i = 0; i < 8; i++) {
-            coins.add(new Coin(15272 + (i * 60), 6912, player));
-        }
-
-        // Set 25: x=16416, y=1741, num=10
-        for (int i = 0; i < 10; i++) {
-            coins.add(new Coin(16416 + (i * 60), 1741, player));
-        }
-
-        // Set 26: x=18256, y=4653, num=10
-        for (int i = 0; i < 10; i++) {
-            coins.add(new Coin(18256, 4653 + (i * 60), player));
-        }
-
-        // Set 27: x=17496, y=4147, num=4
-        for (int i = 0; i < 4; i++) {
-            coins.add(new Coin(17496 + (i * 60), 4147, player));
-        }
-
-        // Set 28: x=18256, y=2200, num=10
-        for (int i = 0; i < 10; i++) {
-            coins.add(new Coin(18256, 2200 + (i * 60), player));
-        }
-
-        // Set 29: x=19352, y=2213, num=2
-        for (int i = 0; i < 2; i++) {
-            coins.add(new Coin(19352 + (i * 60), 2213, player));
-        }
-
-        // Set 30: x=21524, y=997, num=3
-        for (int i = 0; i < 3; i++) {
-            coins.add(new Coin(21524 + (i * 60), 997, player));
-        }
-
-        // end of l1 coins
 
         // load in tile images
         tileimgs.add(ImageManager.loadBufferedImage("images/A.jpg"));
@@ -338,12 +140,28 @@ public class TileMap {
         tileimgs.add(ImageManager.loadBufferedImage("images/Z.png"));
         // create letter tiles using corresponding indexes.
 
+        int currentLevel = panel.getLevel();
+        generateLetterTiles(currentLevel);
+
+        sprites = new LinkedList();
+        sm = SoundManager.getInstance();
+        setupLevel(currentLevel);
+    }
+
+    public void generateLetterTiles(int level) {
+        lts.clear();
         answer = panel.getAnswer();
         answerLetters = answer.toUpperCase().toCharArray();
 
-        // Define the 13 locations
-        int[] locX = { 568, 3284, 5540, 4012, 3968, 10316, 10072, 9872, 15256, 14876, 17152, 18148, 20504 };
-        int[] locY = { 6559, 6309, 6540, 7269, 7104, 8448, 6885, 6117, 5669, 6629, 6053, 4005, 1701 };
+        int[] locX, locY;
+        if (level == 1) {
+            locX = new int[] { 568, 3284, 5540, 4012, 3968, 10316, 10072, 9872, 15256, 14876, 17152, 18148, 20504 };
+            locY = new int[] { 6559, 6309, 6540, 7269, 7104, 8448, 6885, 6117, 5669, 6629, 6053, 4005, 1701 };
+        } else {
+            locX = new int[] { 25406, 25262, 29156, 27284, 29056, 32258, 32586, 29720, 29128, 34952, 37372, 42510,
+                    39460, 39676 };
+            locY = new int[] { 434, 2591, 2655, 4255, 7775, 8095, 6559, 6239, 5151, 2463, 4831, 4511, 8128, 8216 };
+        }
 
         // Prepare a pool of letters for these 13 slots
         java.util.ArrayList<Character> letterPool = new java.util.ArrayList<>();
@@ -388,19 +206,65 @@ public class TileMap {
                 lts.add(lt);
             }
         }
-
-        sprites = new LinkedList();
-        sm = SoundManager.getInstance();
-        setupLevel(1);
     }
 
     public void setupLevel(int level) {
+        axes.clear();
+        blades.clear();
+        spikes.clear();
+        mboxes.clear();
+        enemies.clear();
+        coins.clear();
+
         if (level == 1) {
             player.setX(100);
             player.setY(100);
             player.setStartPosition(100, 100);
             player.setBounds(0, 23092);
             heart = new Heart(panel, player, 22408, 165);
+
+            // Level 1 Hazards
+            axes.add(new PendulumAxe(11560, 5015, 200, ImageManager.loadImage("images/battle_axe.png")));
+            axes.add(new PendulumAxe(6444, 5675, 200, ImageManager.loadImage("images/battle_axe.png")));
+
+            blades.add(new SpinningBlade(17642, 4994, ImageManager.loadImage("images/spinning_blade.png")));
+            blades.add(new SpinningBlade(17642, 5519, ImageManager.loadImage("images/spinning_blade.png")));
+            blades.add(new SpinningBlade(11716, 7500, ImageManager.loadImage("images/spinning_blade.png")));
+            blades.add(new SpinningBlade(11716, 6800, ImageManager.loadImage("images/spinning_blade.png")));
+
+            spikes.add(new GroundSpike(14720, 4680, ImageManager.loadImage("images/groundspikes.png")));
+            spikes.add(new GroundSpike(14785, 4680, ImageManager.loadImage("images/groundspikes.png")));
+            spikes.add(new GroundSpike(14850, 4680, ImageManager.loadImage("images/groundspikes.png")));
+            spikes.add(new GroundSpike(17664, 6425, ImageManager.loadImage("images/groundspikes.png")));
+            spikes.add(new GroundSpike(6600, 7690, ImageManager.loadImage("images/groundspikes.png")));
+            spikes.add(new GroundSpike(6700, 7690, ImageManager.loadImage("images/groundspikes.png")));
+
+            mboxes.add(new MysteryBox(14720, 4300, player));
+            mboxes.add(new MysteryBox(6500, 6333, player));
+            mboxes.add(new MysteryBox(11768, 5629, player));
+
+            // Level 1 Coins
+            int[][] l1Coins = {
+                    { 14500, 4300, 1 }, { 1216, 6245, 4 }, { 1788, 6053, 8 }, { 4744, 5769, 7 }, { 4132, 7230, 1 },
+                    { 5812, 7205, 6 }, { 7248, 7269, 3 }, { 7576, 8549, 3 }, { 7576, 8128, 30 }, { 8080, 8293, 3 },
+                    { 8060, 8485, 3 }, { 8996, 8357, 3 }, { 5144, 6501, 6 }, { 10304, 8549, 4 }, { 10704, 8421, 1 },
+                    { 6044, 6285, 4 }, { 7140, 6245, 3 }, { 7392, 6053, 3 }, { 9344, 6181, 2 }, { 9960, 5925, 7 },
+                    { 10448, 6437, 2 }, { 10776, 7525, 2 }, { 11068, 6373, 2 }, { 12696, 5221, 8 }, { 15924, 5925, 8 },
+                    { 14988, 6317, 25 }, { 15272, 6912, 8 }, { 16416, 1741, 10 }, { 17496, 4147, 4 },
+                    { 19352, 2213, 2 },
+                    { 21524, 997, 3 }
+            };
+            for (int[] data : l1Coins) {
+                for (int i = 0; i < data[2]; i++)
+                    coins.add(new Coin(data[0] + (i * 60), data[1], player));
+            }
+            // Vertically stacked ones
+            int[][] l1VCoins = { { 10020, 7589, 10 }, { 18256, 4653, 10 }, { 18256, 2200, 10 } };
+            for (int[] data : l1VCoins) {
+                for (int i = 0; i < data[2]; i++)
+                    coins.add(new Coin(data[0], data[1] + (i * 60), player));
+            }
+
             System.out.println("Level 1 initialized");
         } else if (level == 2) {
             player.setX(23056);
@@ -408,6 +272,59 @@ public class TileMap {
             player.setStartPosition(23056, 165);
             player.setBounds(22924, getWidthPixels());
             heart = new Heart(panel, player, 43800, 4517);
+
+            // Level 2 Hazards
+            blades.add(new SpinningBlade(30495, 1603, ImageManager.loadImage("images/spinning_blade.png")));
+            axes.add(new PendulumAxe(31209, 3699, 200, ImageManager.loadImage("images/battle_axe.png")));
+
+            // Level 2 Spikes
+            // 36378 - 37134, 1823
+            for (int x = 36378; x <= 37134; x += 65)
+                spikes.add(new GroundSpike(x, 1863, ImageManager.loadImage("images/groundspikes.png")));
+            // 39458 - 39626, 8415
+            for (int x = 39458; x <= 39626; x += 65)
+                spikes.add(new GroundSpike(x, 8455, ImageManager.loadImage("images/groundspikes.png")));
+            // 28672, 1823 (Quantity: 2)
+            for (int i = 0; i < 2; i++)
+                spikes.add(new GroundSpike(28672 + (i * 65), 1863, ImageManager.loadImage("images/groundspikes.png")));
+            // 26092 - 26956, 735 (Every other)
+            for (int x = 26092; x <= 26956; x += 130)
+                spikes.add(new GroundSpike(x, 775, ImageManager.loadImage("images/groundspikes.png")));
+            // 25472, 2655 (Quantity: 2)
+            for (int i = 0; i < 2; i++)
+                spikes.add(new GroundSpike(25472 + (i * 65), 2695, ImageManager.loadImage("images/groundspikes.png")));
+            // 26752, 1887 (Quantity: 3)
+            for (int i = 0; i < 3; i++)
+                spikes.add(new GroundSpike(26752 + (i * 65), 1927, ImageManager.loadImage("images/groundspikes.png")));
+
+            // Level 2 Mystery Boxes
+            int[][] l2MBoxes = { { 32574, 7104 }, { 31418, 4383 }, { 37952, 4383 }, { 37360, 4831 }, { 38638, 4395 } };
+            for (int[] pos : l2MBoxes)
+                mboxes.add(new MysteryBox(pos[0], pos[1], player));
+
+            // Level 2 Coins
+            int[][] l2Coins = {
+                    { 23516, 159, 5 }, { 24992, 927, 4 }, { 24974, 1503, 6 }, { 24506, 1631, 4 }, { 24036, 1703, 6 },
+                    { 24768, 2151, 17 }, { 26378, 1823, 1 }, { 26042, 1603, 2 }, { 26294, 1503, 2 },
+                    { 26240, 1216, 15 },
+                    { 27428, 1114, 5 }, { 27032, 1375, 6 }, { 27680, 1375, 7 }, { 27026, 1631, 12 }, { 28672, 1447, 2 },
+                    { 29932, 3039, 3 }, { 30302, 3231, 3 }, { 29936, 3487, 3 }, { 30296, 3615, 3 }, { 29936, 3871, 3 },
+                    { 27346, 4831, 3 }, { 28738, 4544, 10 }, { 28582, 5343, 2 }, { 28224, 5663, 2 }, { 28546, 5983, 2 },
+                    { 27210, 7719, 7 }, { 31142, 8095, 25 }, { 29196, 7775, 20 }, { 31206, 7263, 15 },
+                    { 30136, 6879, 6 },
+                    { 31706, 6559, 10 }, { 29844, 6239, 10 }, { 31638, 5919, 10 }, { 29056, 4607, 6 },
+                    { 31906, 3679, 7 },
+                    { 32662, 3679, 6 }, { 32986, 3203, 7 }, { 33238, 3651, 3 }, { 33408, 3103, 7 }, { 34534, 2655, 4 },
+                    { 35154, 2975, 2 }, { 35154, 2655, 2 }, { 35642, 4415, 12 }, { 35408, 3712, 25 },
+                    { 36836, 4831, 30 },
+                    { 37890, 4383, 3 }, { 38252, 4639, 3 }, { 38612, 4511, 3 }, { 42122, 5023, 2 }, { 42122, 7495, 25 }
+            };
+            for (int[] data : l2Coins) {
+                for (int i = 0; i < data[2]; i++)
+                    coins.add(new Coin(data[0] + (i * 60), data[1], player));
+            }
+
+            generateLetterTiles(2); // Regenerate tiles for the new riddle in Level 2
             System.out.println("Level 2 initialized");
         }
     }

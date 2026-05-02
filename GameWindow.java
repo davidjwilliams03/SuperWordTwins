@@ -1,16 +1,15 @@
-import java.awt.*;			// need this for GUI objects
-import java.awt.event.*;			// need this for Layout Managers
-import javax.swing.*;		// need this to respond to GUI events
-	
-public class GameWindow extends JFrame 
-				implements ActionListener,
-					   KeyListener,
-					   MouseListener,
-					   FocusListener
-{
+import java.awt.*; // need this for GUI objects
+import java.awt.event.*; // need this for Layout Managers
+import javax.swing.*; // need this to respond to GUI events
+
+public class GameWindow extends JFrame
+		implements ActionListener,
+		KeyListener,
+		MouseListener,
+		FocusListener {
 	// declare instance variables for user interface objects
 
-	// declare labels 
+	// declare labels
 
 	private JLabel statusBarL;
 	private JLabel keyL;
@@ -55,24 +54,25 @@ public class GameWindow extends JFrame
 	private static final boolean[] keys = new boolean[1024];
 
 	public static boolean isKeyPressed(int keyCode) {
-		if (keyCode >= 0 && keyCode < keys.length) return keys[keyCode];
+		if (keyCode >= 0 && keyCode < keys.length)
+			return keys[keyCode];
 		return false;
 	}
 
-	@SuppressWarnings({"unchecked"})
+	@SuppressWarnings({ "unchecked" })
 	public GameWindow() {
- 
-		setTitle ("Tiled Bat and Ball Game: Ordinary Windowed Mode");
-		setSize (1350, 900);
+
+		setTitle("Super Word Twins");
+		setSize(1350, 900);
 
 		// create user interface objects
 
 		// create labels
 
-		statusBarL = new JLabel ("Application Status: ");
+		statusBarL = new JLabel("Application Status: ");
 		keyL = new JLabel("Key Pressed: ");
 		mouseL = new JLabel("Location of Mouse Click: ");
-		collectedL = new JLabel ("Number of Coins Collected: ");
+		collectedL = new JLabel("Number of Coins Collected: ");
 		clueL = new JLabel("Clue: ");
 		ansL = new JLabel("Answer: ");
 		coinsL = new JLabel("Coins Collected: ");
@@ -82,16 +82,16 @@ public class GameWindow extends JFrame
 
 		// create text fields and set their colour, etc.
 
-		statusBarTF = new JTextField (25);
-		keyTF = new JTextField (25);
-		mouseTF = new JTextField (25);
+		statusBarTF = new JTextField(25);
+		keyTF = new JTextField(25);
+		mouseTF = new JTextField(25);
 		collectedTF = new JTextField(2);
 		clueTF = new JTextField(100);
 		answerTF = new JTextField(20);
-		coinsTF = new JTextField (25);
-		levelTF = new JTextField (25);
-		healthTF = new JTextField (25);
-		progressTF = new JTextField (25);
+		coinsTF = new JTextField(25);
+		levelTF = new JTextField(25);
+		healthTF = new JTextField(25);
+		progressTF = new JTextField(25);
 
 		// Set all text fields to non-editable
 		statusBarTF.setEditable(false);
@@ -105,7 +105,7 @@ public class GameWindow extends JFrame
 		healthTF.setEditable(false);
 		progressTF.setEditable(false);
 
-		//align
+		// align
 		clueTF.setHorizontalAlignment(JTextField.CENTER);
 		answerTF.setHorizontalAlignment(JTextField.CENTER);
 
@@ -123,13 +123,12 @@ public class GameWindow extends JFrame
 
 		// create buttons
 
-	        startB = new JButton ("Start Game");
-	        pauseB = new JButton ("Pause Game");
-	        endB = new JButton ("End Game");
-		startNewB = new JButton ("Start New Game");
-	        focusB = new JButton ("Show Animation");
-		exitB = new JButton ("Exit");
-
+		startB = new JButton("Start Game");
+		pauseB = new JButton("Pause Game");
+		endB = new JButton("End Game");
+		startNewB = new JButton("Start New Game");
+		focusB = new JButton("Show Animation");
+		exitB = new JButton("Exit");
 
 		// add listener to each button (same as the current object)
 
@@ -139,7 +138,7 @@ public class GameWindow extends JFrame
 		startNewB.addActionListener(this);
 		focusB.addActionListener(this);
 		exitB.addActionListener(this);
-		
+
 		// create mainPanel
 
 		mainPanel = new JPanel();
@@ -151,7 +150,7 @@ public class GameWindow extends JFrame
 		// create the gamePanel for game entities
 
 		gamePanel = new GamePanel();
-        gamePanel.setPreferredSize(new Dimension(1300, 600));
+		gamePanel.setPreferredSize(new Dimension(1300, 600));
 
 		// create infoPanel
 
@@ -161,23 +160,22 @@ public class GameWindow extends JFrame
 		infoPanel.setBackground(Color.ORANGE);
 
 		// add user interface objects to infoPanel
-	
-		infoPanel.add (levelL);
-		infoPanel.add (levelTF);
-		infoPanel.add (progressL);
-		infoPanel.add (progressTF);
 
-		infoPanel.add (healthL);
-		infoPanel.add (healthTF);
-		infoPanel.add (keyL);
-		infoPanel.add (keyTF);		
+		infoPanel.add(levelL);
+		infoPanel.add(levelTF);
+		infoPanel.add(progressL);
+		infoPanel.add(progressTF);
 
-		infoPanel.add (coinsL);
-		infoPanel.add (coinsTF);
-		infoPanel.add (statusBarL);
-		infoPanel.add (statusBarTF);
+		infoPanel.add(healthL);
+		infoPanel.add(healthTF);
+		infoPanel.add(keyL);
+		infoPanel.add(keyTF);
 
-		
+		infoPanel.add(coinsL);
+		infoPanel.add(coinsTF);
+		infoPanel.add(statusBarL);
+		infoPanel.add(statusBarTF);
+
 		// create buttonPanel
 
 		JPanel buttonPanel = new JPanel();
@@ -186,23 +184,23 @@ public class GameWindow extends JFrame
 
 		// add buttons to buttonPanel
 
-		buttonPanel.add (startB);
-		buttonPanel.add (pauseB);
-		buttonPanel.add (endB);
-		buttonPanel.add (startNewB);
-		buttonPanel.add (focusB);
-		buttonPanel.add (exitB);
+		buttonPanel.add(startB);
+		buttonPanel.add(pauseB);
+		buttonPanel.add(endB);
+		buttonPanel.add(startNewB);
+		buttonPanel.add(focusB);
+		buttonPanel.add(exitB);
 
-		//create cluePanel
+		// create cluePanel
 		JPanel cluePanel = new JPanel();
 		BoxLayout boxLayout = new BoxLayout(cluePanel, BoxLayout.Y_AXIS);
 		cluePanel.setBackground(Color.ORANGE);
 
 		// add user interface objects to infoPanel
-	
-		//cluePanel.add (clueL);
-		cluePanel.add (clueTF);
-		//cluePanel.add(ansL);
+
+		// cluePanel.add (clueL);
+		cluePanel.add(clueTF);
+		// cluePanel.add(ansL);
 		cluePanel.add(Box.createVerticalStrut(10));
 		cluePanel.add(answerTF);
 
@@ -212,7 +210,7 @@ public class GameWindow extends JFrame
 		mainPanel.add(cluePanel);
 		mainPanel.add(gamePanel);
 		mainPanel.add(buttonPanel);
-		
+
 		mainPanel.setBackground(Color.PINK);
 		mainPanel.setFocusable(true);
 		mainPanel.addFocusListener(this);
@@ -245,19 +243,18 @@ public class GameWindow extends JFrame
 		statusBarTF.setText("Application started.");
 	}
 
-
 	// implement single method in ActionListener interface
 
 	public void actionPerformed(ActionEvent e) {
 
 		String command = e.getActionCommand();
-		
+
 		statusBarTF.setText(command + " button clicked.");
 
 		if (command.equals(startB.getText())) {
 			gamePanel.loadRiddles();
 			clueTF.setText(gamePanel.chooseClue());
-			for(int i = 0; i < gamePanel.numCharAns(); i++){
+			for (int i = 0; i < gamePanel.numCharAns(); i++) {
 				answerTF.setText(answerTF.getText() + "_ ");
 			}
 
@@ -269,12 +266,12 @@ public class GameWindow extends JFrame
 		if (command.equals(pauseB.getText())) {
 			gamePanel.pauseGame();
 			if (command.equals("Pause Game"))
-				pauseB.setText ("Resume");
+				pauseB.setText("Resume");
 			else
-				pauseB.setText ("Pause Game");
+				pauseB.setText("Pause Game");
 
 		}
-		
+
 		if (command.equals(endB.getText())) {
 			gamePanel.endGame();
 		}
@@ -294,12 +291,15 @@ public class GameWindow extends JFrame
 	public void updateLevel(int level) {
 		levelTF.setText("" + level);
 	}
+
 	public void updateHealth(int health) {
 		healthTF.setText("" + health);
 	}
+
 	public void updateCoins(int coins) {
 		coinsTF.setText("" + coins);
 	}
+
 	public void updateProgress(int progress) {
 		progressTF.setText(progress + "%");
 	}
@@ -312,8 +312,10 @@ public class GameWindow extends JFrame
 		char[] answer = gamePanel.getAnswer().toCharArray();
 		StringBuilder updated = new StringBuilder();
 		for (char current : answer) {
-			if (current == ' ') updated.append("  ");
-			else updated.append("_ ");
+			if (current == ' ')
+				updated.append("  ");
+			else
+				updated.append("_ ");
 		}
 		answerTF.setText(updated.toString().trim());
 	}
@@ -322,13 +324,13 @@ public class GameWindow extends JFrame
 		guessedLetters.clear();
 	}
 
-	public int updateAns(char c){
+	public int updateAns(char c) {
 		guessedLetters.add(c);
 		char[] answer = gamePanel.getAnswer().toCharArray();
 		StringBuilder updated = new StringBuilder();
-		int count = 0; 
-		
-		for (int i = 0; i < answer.length; i++){
+		int count = 0;
+
+		for (int i = 0; i < answer.length; i++) {
 			char current = answer[i];
 			if (current == ' ') {
 				updated.append("  "); // Double space for visual gap
@@ -346,7 +348,8 @@ public class GameWindow extends JFrame
 		return count;
 	}
 
-	public void focusGained(FocusEvent e) {}
+	public void focusGained(FocusEvent e) {
+	}
 
 	public void focusLost(FocusEvent e) {
 		// Reset all keys when focus is lost to prevent "sticky" keys
@@ -361,7 +364,7 @@ public class GameWindow extends JFrame
 		int keyCode = e.getKeyCode();
 		String keyText = e.getKeyText(keyCode);
 		keyTF.setText(keyText + " pressed.");
-		
+
 		if (keyCode >= 0 && keyCode < keys.length) {
 			keys[keyCode] = true;
 		}
@@ -372,7 +375,7 @@ public class GameWindow extends JFrame
 
 		int coinsCollected = gamePanel.getCoinsCollected();
 		coinsTF.setText(String.valueOf(coinsCollected));
-		
+
 		if (keyCode >= 0 && keyCode < keys.length) {
 			keys[keyCode] = false;
 		}
@@ -382,28 +385,26 @@ public class GameWindow extends JFrame
 
 	}
 
-
 	// implement methods in MouseListener interface
 
 	public void mouseClicked(MouseEvent e) {
 		// Mouse click location tracking removed to favor coin collection count
 	}
 
-
 	public void mouseEntered(MouseEvent e) {
-	
+
 	}
 
 	public void mouseExited(MouseEvent e) {
-	
+
 	}
 
 	public void mousePressed(MouseEvent e) {
-	
+
 	}
 
 	public void mouseReleased(MouseEvent e) {
-	
+
 	}
 
 }

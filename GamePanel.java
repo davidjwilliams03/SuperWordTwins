@@ -13,11 +13,11 @@ import java.util.Random;
 import javax.swing.JPanel;
 
 /**
-   A component that displays all the game entities
-*/
+ * A component that displays all the game entities
+ */
 
 public class GamePanel extends JPanel
-		       implements Runnable {
+		implements Runnable {
 
 	private SoundManager soundManager;
 
@@ -27,16 +27,16 @@ public class GamePanel extends JPanel
 	private Thread gameThread;
 
 	private BufferedImage image;
- 	private Image backgroundImage;
+	private Image backgroundImage;
 
 	private BirdAnimation animation;
 	private volatile boolean isAnimShown;
 	private volatile boolean isAnimPaused;
 
-	private ImageEffect imageEffect;		// sprite demonstrating an image effect
+	private ImageEffect imageEffect; // sprite demonstrating an image effect
 
 	private TileMapManager tileManager;
-	private TileMap	tileMap;
+	private TileMap tileMap;
 
 	private boolean levelChange;
 	private int level;
@@ -57,8 +57,7 @@ public class GamePanel extends JPanel
 
 	private Random random;
 
-
-	public GamePanel () {
+	public GamePanel() {
 
 		isRunning = false;
 		isPaused = false;
@@ -67,13 +66,13 @@ public class GamePanel extends JPanel
 		random = new Random();
 
 		riddle = new ArrayList<>();
-        ans = new ArrayList<>();
+		ans = new ArrayList<>();
 		gameOverPending = false;
 
 		soundManager = SoundManager.getInstance();
 
 		// Initialize buffer to match preferred size (1300x700)
-		image = new BufferedImage (1300, 700, BufferedImage.TYPE_INT_RGB);
+		image = new BufferedImage(1300, 700, BufferedImage.TYPE_INT_RGB);
 
 		level = 2;
 		clueIndex = 1; // Start with second riddle for level 2
@@ -91,18 +90,18 @@ public class GamePanel extends JPanel
 
 	public void loadRiddles() {
 		BufferedReader br = null;
-    	String line = "";
+		String line = "";
 
-	    try {
-    	    br = new BufferedReader(new FileReader("riddles.csv"));
-    	    while ((line = br.readLine()) != null) {
-    	        String[] row = line.split(",");
-    	        riddle.add(row[0].trim().toUpperCase());
-    	        ans.add(row[1].trim().toUpperCase());
-    	    }
-    	} catch (Exception e) {
-    	    e.printStackTrace();
-    	}
+		try {
+			br = new BufferedReader(new FileReader("riddles.csv"));
+			while ((line = br.readLine()) != null) {
+				String[] row = line.split(",");
+				riddle.add(row[0].trim().toUpperCase());
+				ans.add(row[1].trim().toUpperCase());
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
 	}
 
 	public String getClue() {
@@ -128,12 +127,12 @@ public class GamePanel extends JPanel
 		return ans.get(clueIndex);
 	}
 
-	public void correctGuess(char c){
+	public void correctGuess(char c) {
 		guessedChar = c;
 		numGuessesCorrect += window.updateAns(c);
 		// Count length without spaces for completion check
 		int targetLength = getAnswer().replace(" ", "").length();
-		if(numGuessesCorrect >= targetLength){
+		if (numGuessesCorrect >= targetLength) {
 			wordComplete = true;
 		}
 	}
@@ -142,51 +141,56 @@ public class GamePanel extends JPanel
 		return wordComplete;
 	}
 
-	public char getCorrectGuessChar(){
+	public char getCorrectGuessChar() {
 		return guessedChar;
 	}
 
-	public int numCharAns(){
+	public int numCharAns() {
 		return getAnswer().length();
 	}
 
-	public ArrayList<String> getRiddles(){
+	public ArrayList<String> getRiddles() {
 		return riddle;
 	}
-	public ArrayList<String> getAnswers(){
+
+	public ArrayList<String> getAnswers() {
 		return ans;
 	}
 
 	public int getCoinsCollected() {
-    	if (tileMap == null) return 0;
-    	return tileMap.getCoinsCollected();
-}
+		if (tileMap == null)
+			return 0;
+		return tileMap.getCoinsCollected();
+	}
 
 	public void createGameEntities() {
 		animation = new BirdAnimation();
-		imageEffect = new ImageEffect (this);
+		imageEffect = new ImageEffect(this);
 	}
 
-
-	public void run () {
+	public void run() {
 		try {
 			isRunning = true;
 			while (isRunning) {
 				if (!isPaused && !gameOver && !gameOverPending)
 					gameUpdate();
 				gameRender();
-				Thread.sleep (50);	
+				Thread.sleep(50);
 			}
+		} catch (InterruptedException e) {
 		}
-		catch(InterruptedException e) {}
 	}
 
 	private void checkInput() {
-		if (tileMap == null || gameOver || gameOverPending) return;
+		if (tileMap == null || gameOver || gameOverPending)
+			return;
 
-		if (GameWindow.isKeyPressed(KeyEvent.VK_LEFT)) moveLeft();
-		if (GameWindow.isKeyPressed(KeyEvent.VK_RIGHT)) moveRight();
-		if (GameWindow.isKeyPressed(KeyEvent.VK_SPACE)) jump();
+		if (GameWindow.isKeyPressed(KeyEvent.VK_LEFT))
+			moveLeft();
+		if (GameWindow.isKeyPressed(KeyEvent.VK_RIGHT))
+			moveRight();
+		if (GameWindow.isKeyPressed(KeyEvent.VK_SPACE))
+			jump();
 	}
 
 	public void gameUpdate() {
@@ -200,35 +204,35 @@ public class GamePanel extends JPanel
 			window.updateLevel(level);
 			window.updateHealth(p.getHealth());
 			window.updateCoins(tileMap.getCoinsCollected());
-			
+
 			int mapWidth = tileMap.getWidthPixels();
 			// Calculate percentage progress based on player X position
-			int progress = (mapWidth > 0) ? (int)((p.getX() * 100.0) / mapWidth) : 0;
+			int progress = (mapWidth > 0) ? (int) ((p.getX() * 100.0) / mapWidth) : 0;
 			window.updateProgress(Math.min(100, Math.max(0, progress)));
 		}
 
 		if (levelChange) {
 			levelChange = false;
-			
-            if (level == 2) {
-                javax.swing.JOptionPane.showMessageDialog(this, "Congrats! Move to level 2.");
-                
-                // Move to next riddle
-                clueIndex++;
-                wordComplete = false;
-                numGuessesCorrect = 0;
-                if (window != null) {
-                    window.resetGuessedLetters();
-                    window.updateClue(getClue());
-                }
-                
-                tileMap.setupLevel(2);
-                return;
-            } else if (level > 2) {
-                javax.swing.JOptionPane.showMessageDialog(this, "You Win! Game Over.");
-                setGameOver();
-                return;
-            }
+
+			if (level == 2) {
+				javax.swing.JOptionPane.showMessageDialog(this, "Congrats! Move to level 2.");
+
+				// Move to next riddle
+				clueIndex++;
+				wordComplete = false;
+				numGuessesCorrect = 0;
+				if (window != null) {
+					window.resetGuessedLetters();
+					window.updateClue(getClue());
+				}
+
+				tileMap.setupLevel(2);
+				return;
+			} else if (level > 2) {
+				javax.swing.JOptionPane.showMessageDialog(this, "You Win! Game Over.");
+				setGameOver();
+				return;
+			}
 		}
 
 		if (!isPaused && isAnimShown)
@@ -237,7 +241,6 @@ public class GamePanel extends JPanel
 		imageEffect.update();
 	}
 
-
 	public void gameRender() {
 		repaint();
 	}
@@ -245,7 +248,8 @@ public class GamePanel extends JPanel
 	@Override
 	protected void paintComponent(Graphics g) {
 		super.paintComponent(g);
-		if (image == null || tileMap == null) return;
+		if (image == null || tileMap == null)
+			return;
 
 		Graphics2D imageContext = image.createGraphics();
 		tileMap.draw(imageContext);
@@ -282,18 +286,21 @@ public class GamePanel extends JPanel
 			BufferedImage img = ImageManager.loadBufferedImage("images/gameOver.png");
 			imageContext.drawImage(img, (w - img.getWidth()) / 2, (h - img.getHeight()) / 2, null);
 
-			/*imageContext.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING, RenderingHints.VALUE_TEXT_ANTIALIAS_ON);
-			imageContext.setFont(new Font("Arial", Font.BOLD, 72));
-			imageContext.setColor(Color.WHITE);
-			String msg = "GAME OVER";
-			imageContext.drawString(msg, (w - imageContext.getFontMetrics().stringWidth(msg)) / 2, h / 2);*/
+			/*
+			 * imageContext.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING,
+			 * RenderingHints.VALUE_TEXT_ANTIALIAS_ON);
+			 * imageContext.setFont(new Font("Arial", Font.BOLD, 72));
+			 * imageContext.setColor(Color.WHITE);
+			 * String msg = "GAME OVER";
+			 * imageContext.drawString(msg, (w -
+			 * imageContext.getFontMetrics().stringWidth(msg)) / 2, h / 2);
+			 */
 
 			imageContext.setFont(new Font("Arial", Font.BOLD, 40));
 			imageContext.setColor(Color.WHITE);
 			String restartMsg = "Press 'Start New Game' to retry";
 			imageContext.drawString(restartMsg, 370, 500);
 
-			
 		}
 
 		g.drawImage(image, 0, 0, getWidth(), getHeight(), null);
@@ -301,8 +308,9 @@ public class GamePanel extends JPanel
 	}
 
 	private void drawHUD(Graphics2D g2) {
-		if (tileMap == null) return;
-		
+		if (tileMap == null)
+			return;
+
 		int health = tileMap.getPlayer().getHealth();
 		int barWidth = 200;
 		int barHeight = 20;
@@ -315,7 +323,7 @@ public class GamePanel extends JPanel
 
 		// Current Health (Green)
 		g2.setColor(Color.GREEN);
-		int currentBarWidth = (int)((health / 100.0) * barWidth);
+		int currentBarWidth = (int) ((health / 100.0) * barWidth);
 		g2.fillRect(x, y, currentBarWidth, barHeight);
 
 		g2.setColor(Color.WHITE);
@@ -324,29 +332,28 @@ public class GamePanel extends JPanel
 	}
 
 	/**
-	 * Triggers the game over sequence with a slight delay so the 
+	 * Triggers the game over sequence with a slight delay so the
 	 * player can see the collision before the screen freezes.
 	 */
 	public void setGameOver() {
 		if (!gameOver && !gameOverPending) {
 			gameOverPending = true;
-			
+
 			// Start a timer to trigger the actual grey-out after 500ms
 			new javax.swing.Timer(500, e -> {
 				soundManager.stopSound("background");
 				soundManager.playSound("died", false);
 				this.gameOver = true;
 				this.gameOverPending = false;
-				((javax.swing.Timer)e.getSource()).stop();
+				((javax.swing.Timer) e.getSource()).stop();
 			}).start();
 		}
 	}
 
-
-	public void startGame() {				// initialise and start the game thread 
+	public void startGame() { // initialise and start the game thread
 
 		if (gameThread == null) {
-			soundManager.playSound ("background", true);
+			soundManager.playSound("background", true);
 
 			gameOver = false;
 			wordComplete = false;
@@ -357,34 +364,33 @@ public class GamePanel extends JPanel
 				window.showEmptyAnswer();
 			}
 
-			tileManager = new TileMapManager (this);
+			tileManager = new TileMapManager(this);
 
 			try {
 				tileMap = tileManager.loadMap("maps/map_export.txt");
 				int w, h;
 				w = tileMap.getWidth();
 				h = tileMap.getHeight();
-				System.out.println ("Width of tilemap " + w);
-				System.out.println ("Height of tilemap " + h);
+				System.out.println("Width of tilemap " + w);
+				System.out.println("Height of tilemap " + h);
 			}
-			
+
 			catch (Exception e) {
 				System.out.println(e);
 				System.exit(0);
 			}
 			image = new BufferedImage(getWidth(), getHeight(), BufferedImage.TYPE_INT_RGB);
 
-			soundManager.playSound ("loadIn", false);
+			soundManager.playSound("loadIn", false);
 			createGameEntities();
 
 			gameThread = new Thread(this);
-			gameThread.start();			
+			gameThread.start();
 
 		}
 	}
 
-
-	public void startNewGame() {				// initialise and start a new game thread 
+	public void startNewGame() { // initialise and start a new game thread
 		// Stop any existing game thread safely before starting a new one
 		if (gameThread != null) {
 			isRunning = false;
@@ -401,8 +407,7 @@ public class GamePanel extends JPanel
 		startGame(); // Use existing startGame logic to avoid duplication
 	}
 
-
-	public void pauseGame() {				// pause the game (don't update game entities)
+	public void pauseGame() { // pause the game (don't update game entities)
 		if (isRunning) {
 			if (isPaused)
 				isPaused = false;
@@ -418,37 +423,31 @@ public class GamePanel extends JPanel
 		}
 	}
 
-
-	public void endGame() {					// end the game thread
+	public void endGame() { // end the game thread
 		isRunning = false;
-		
+
 	}
 
-	
 	public void moveLeft() {
 		if (!gameOver)
 			tileMap.moveLeft();
 	}
-
 
 	public void moveRight() {
 		if (!gameOver)
 			tileMap.moveRight();
 	}
 
-
 	public void jump() {
 		if (!gameOver)
 			tileMap.jump();
 	}
 
-	
 	public void showAnimation() {
 		isAnimShown = true;
 		animation.start();
-		
-	}
 
+	}
 
 	public void endLevel() {
 		level = level + 1;

@@ -307,7 +307,7 @@ public class TileMap {
 
             // Level 2 Coins
             int[][] l2Coins = {
-                    { 23516, 159, 5 }, { 24992, 927, 4 }, { 24974, 1503, 6 }, { 24506, 1631, 4 }, { 24036, 1703, 6 },
+                    { 23556, 159, 5 }, { 24992, 927, 4 }, { 24974, 1503, 6 }, { 24506, 1631, 4 }, { 24036, 1703, 6 },
                     { 24768, 2151, 17 }, { 26378, 1823, 1 }, { 26042, 1603, 2 }, { 26294, 1503, 2 },
                     { 26240, 1216, 15 },
                     { 27428, 1114, 5 }, { 27032, 1375, 6 }, { 27680, 1375, 7 }, { 27026, 1631, 12 }, { 28672, 1447, 2 },
@@ -332,7 +332,7 @@ public class TileMap {
                     int y = startY;
 
                     // Special Cases for Vertical Iteration
-                    if ((startX == 23516 && startY == 159) ||
+                    if ((startX == 23556 && startY == 159) ||
                             (startX == 24036 && startY == 1703) ||
                             (startX == 28738 && startY == 4544) ||
                             (startX == 42122 && startY == 7495)) {
@@ -765,7 +765,7 @@ public class TileMap {
             box.update();
             if (box.collidesWithPlayer() && !box.isDisappeared()) {
                 box.disappearBox(box);
-                player.heal(10);
+                player.heal(20);
 
                 Random random = new Random();
                 int n = 5;

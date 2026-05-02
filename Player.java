@@ -145,6 +145,7 @@ public class Player {
    }
 
    public boolean isClimbing() { return isClimbing; }
+   public boolean isAttacking() { return isAttacking; }
    public int getClimbingSide() { return climbingSide; }
    public boolean isCeilingWalking() { return isCeilingWalking; }
 

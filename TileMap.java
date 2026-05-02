@@ -7,6 +7,7 @@ import java.awt.geom.AffineTransform;
 import java.awt.image.BufferedImage;
 import java.util.Iterator;
 import java.util.LinkedList;
+import java.util.ArrayList;
 import java.util.Random;
 
 /**
@@ -42,6 +43,7 @@ public class TileMap {
     private LinkedList<GroundSpike> spikes;
     private LinkedList<MysteryBox> mboxes;
     private LinkedList<Enemy> enemies;
+    private ArrayList<PotentialEnemy> potentialEnemies = new ArrayList<>();
 
     private LinkedList<Coin> coins;
     private int coinsCollected;
@@ -215,6 +217,7 @@ public class TileMap {
         mboxes.clear();
         enemies.clear();
         coins.clear();
+        potentialEnemies.clear();
 
         if (level == 1) {
             player.setX(100);
@@ -320,11 +323,46 @@ public class TileMap {
                     { 37890, 4383, 3 }, { 38252, 4639, 3 }, { 38612, 4511, 3 }, { 42122, 5023, 2 }, { 42122, 7495, 25 }
             };
             for (int[] data : l2Coins) {
-                for (int i = 0; i < data[2]; i++)
-                    coins.add(new Coin(data[0] + (i * 60), data[1], player));
+                int startX = data[0];
+                int startY = data[1];
+                int count = data[2];
+
+                for (int i = 0; i < count; i++) {
+                    int x = startX;
+                    int y = startY;
+
+                    // Special Cases for Vertical Iteration
+                    if ((startX == 23516 && startY == 159) ||
+                            (startX == 24036 && startY == 1703) ||
+                            (startX == 28738 && startY == 4544) ||
+                            (startX == 42122 && startY == 7495)) {
+                        y += (i * 60);
+                    }
+                    // Special Case for Diagonal Iteration
+                    else if (startX == 29056 && startY == 4607) {
+                        x += (i * 60);
+                        y += (i * 60);
+                    }
+                    // Default: Horizontal Iteration
+                    else {
+                        x += (i * 60);
+                    }
+
+                    coins.add(new Coin(x, y, player));
+                }
             }
 
             generateLetterTiles(2); // Regenerate tiles for the new riddle in Level 2
+
+            // Level 2 Enemies
+            // Y max increased by 96 (player height)
+            potentialEnemies.add(new PotentialEnemy(Enemy.Type.PENGUIN, 29138, 4255, 27230, 30410, 3968, 4255 + 96));
+            potentialEnemies.add(new PotentialEnemy(Enemy.Type.JOKER, 28844, 8671, 26720, 31050, 8512, 8671 + 96));
+            potentialEnemies.add(new PotentialEnemy(Enemy.Type.HARLEY, 29632, 5151, 29632, 30568, 4724, 5151 + 96));
+            potentialEnemies.add(new PotentialEnemy(Enemy.Type.RIDDLER, 37972, 5343, 36990, 41738, 4402, 5343 + 96));
+            potentialEnemies.add(new PotentialEnemy(Enemy.Type.REDHOOD, 37520, 5343, 36990, 41738, 4402, 5343 + 96));
+            potentialEnemies.add(new PotentialEnemy(Enemy.Type.KILLERCROC, 40462, 8159, 40210, 41162, 8000, 8159 + 96));
+
             System.out.println("Level 2 initialized");
         }
     }
@@ -709,8 +747,18 @@ public class TileMap {
 
         for (Enemy enemy : enemies) {
             enemy.update();
-            if (enemy.collidesWith(player)) {
-                player.takeDamage(10); // Chip damage from enemies
+        }
+
+        // Enemy Spawning
+        for (PotentialEnemy pe : potentialEnemies) {
+            if (!pe.spawned) {
+                if (player.getX() >= pe.tMinX && pe.tMaxX >= player.getX() &&
+                        player.getY() >= pe.tMinY && pe.tMaxY >= player.getY()) {
+                    Enemy e = new Enemy(pe.type, pe.spawnX, pe.spawnY, this, player);
+                    e.setTerritory(pe.tMinX, pe.tMaxX, pe.tMinY, pe.tMaxY);
+                    enemies.add(e);
+                    pe.spawned = true;
+                }
             }
         }
         for (MysteryBox box : mboxes) {
@@ -871,6 +919,23 @@ public class TileMap {
 
     public Player getPlayer() {
         return player;
+    }
+
+    private class PotentialEnemy {
+        Enemy.Type type;
+        int spawnX, spawnY;
+        int tMinX, tMaxX, tMinY, tMaxY;
+        boolean spawned = false;
+
+        PotentialEnemy(Enemy.Type type, int x, int y, int x1, int x2, int y1, int y2) {
+            this.type = type;
+            this.spawnX = x;
+            this.spawnY = y;
+            this.tMinX = x1;
+            this.tMaxX = x2;
+            this.tMinY = y1;
+            this.tMaxY = y2;
+        }
     }
 
 }
